@@ -17,6 +17,7 @@ export function useScroll() {
   const wasPlayingBeforeHoverRef = useRef(false)
   const isDraggingRef = useRef(false)
 
+
   // Auto-scroll animation
   useEffect(() => {
     console.log('[useScroll] Effect triggered', { isPlaying, isHovered, scrollSpeed })
@@ -83,25 +84,62 @@ export function useScroll() {
   // Auto-pause on hover (but not when dragging)
   const handleMouseEnter = () => {
     if (isDraggingRef.current) return // Don't pause if dragging
-    console.log('[useScroll] Mouse enter - isPlaying:', isPlaying)
-    // Remember if it was playing before hover
-    wasPlayingBeforeHoverRef.current = isPlaying
+    
+    // Only set wasPlayingBeforeHover if we're not already hovered
+    // This prevents overwriting the flag when mouse moves between elements
+    const wasAlreadyHovered = isHovered
+    if (!wasAlreadyHovered) {
+      wasPlayingBeforeHoverRef.current = isPlaying
+      console.log('[useScroll] Mouse enter - isPlaying:', isPlaying, 'saved wasPlayingBeforeHover:', wasPlayingBeforeHoverRef.current)
+    } else {
+      console.log('[useScroll] Mouse enter - already hovered, isPlaying:', isPlaying, 'wasPlayingBeforeHover:', wasPlayingBeforeHoverRef.current)
+    }
+    
     setIsHovered(true)
-    // Pause if currently playing
-    if (isPlaying) {
+    
+    // Pause if currently playing (only on first hover)
+    if (isPlaying && !wasAlreadyHovered) {
       console.log('[useScroll] Pausing on hover')
       togglePlay()
     }
   }
 
   const handleMouseLeave = () => {
-    if (isDraggingRef.current) return // Don't resume if dragging
-    console.log('[useScroll] Mouse leave - wasPlayingBeforeHover:', wasPlayingBeforeHoverRef.current)
+    if (isDraggingRef.current) {
+      console.log('[useScroll] Mouse leave - dragging, not resuming')
+      return // Don't resume if dragging
+    }
+    const shouldResume = wasPlayingBeforeHoverRef.current
+    console.log('[useScroll] Mouse leave - wasPlayingBeforeHover:', shouldResume, 'current isPlaying:', isPlaying)
+    
+    // Clear hover state first
     setIsHovered(false)
+    
     // Resume if it was playing before hover
-    if (wasPlayingBeforeHoverRef.current) {
-      console.log('[useScroll] Resuming after hover')
-      togglePlay()
+    if (shouldResume) {
+      // Use a small delay to ensure state updates are processed
+      setTimeout(() => {
+        // Check if we're still not dragging
+        if (isDraggingRef.current) {
+          console.log('[useScroll] Still dragging, not resuming')
+          return
+        }
+        
+        const currentState = useStore.getState()
+        console.log('[useScroll] Mouse leave timeout - current isPlaying:', currentState.isPlaying)
+        
+        // Only resume if currently paused
+        if (!currentState.isPlaying) {
+          console.log('[useScroll] Resuming from mouse leave')
+          currentState.togglePlay()
+          wasPlayingBeforeHoverRef.current = false
+        } else {
+          console.log('[useScroll] Already playing, resetting flag')
+          wasPlayingBeforeHoverRef.current = false
+        }
+      }, 150) // Increased delay to ensure state is updated
+    } else {
+      console.log('[useScroll] Should not resume - was not playing before hover')
     }
   }
 

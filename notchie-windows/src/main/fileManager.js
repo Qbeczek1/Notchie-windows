@@ -1,6 +1,6 @@
 import { dialog, BrowserWindow } from 'electron'
 import { readFile, writeFile, mkdir, stat } from 'fs/promises'
-import { join } from 'path'
+import { join, resolve as pathResolve, sep as pathSep } from 'path'
 import { homedir } from 'os'
 import { existsSync } from 'fs'
 import { FILE_CONFIG } from './constants.js'
@@ -112,14 +112,26 @@ export async function writeTextFile(filePath, content) {
       throw new Error('Content must be a string')
     }
     
+    if (!filePath || typeof filePath !== 'string') {
+      throw new Error('Invalid file path')
+    }
+    
     await ensureScriptsDir()
     const validatedContent = validateText(content)
-    const fullPath = filePath.startsWith(SCRIPTS_DIR) 
-      ? filePath 
-      : join(SCRIPTS_DIR, filePath)
-    await writeFile(fullPath, validatedContent, 'utf-8')
-    logger.info(`Text file written: ${fullPath}`)
-    return fullPath
+    
+    // Resolve path and ensure it's within SCRIPTS_DIR to prevent path traversal
+    const resolvedPath = pathResolve(SCRIPTS_DIR, filePath)
+    const scriptsDirResolved = pathResolve(SCRIPTS_DIR)
+    
+    // Check if resolved path is within SCRIPTS_DIR
+    if (!resolvedPath.startsWith(scriptsDirResolved + pathSep) && resolvedPath !== scriptsDirResolved) {
+      logger.error(`Path traversal attempt blocked: ${filePath} -> ${resolvedPath}`)
+      throw new Error('Invalid file path: path traversal detected')
+    }
+    
+    await writeFile(resolvedPath, validatedContent, 'utf-8')
+    logger.info(`Text file written: ${resolvedPath}`)
+    return resolvedPath
   } catch (error) {
     logger.error('Error writing file:', error)
     throw error

@@ -2,6 +2,7 @@ import { app, ipcMain } from 'electron'
 import { createPrompterWindow, getPrompterWindow } from './windowManager.js'
 import { createEditorWindow } from './editorWindow.js'
 import { createSettingsWindow } from './settingsWindow.js'
+import { createAboutWindow } from './aboutWindow.js'
 import { registerGlobalShortcuts, unregisterGlobalShortcuts } from './shortcuts.js'
 import { startScreenShareDetection, stopScreenShareDetection, togglePrompterVisibility } from './screenShare.js'
 import { createTray } from './tray.js'
@@ -65,6 +66,11 @@ app.whenReady().then(() => {
     ipcMain.handle(IPC_CHANNELS.OPEN_SETTINGS, () => {
       logger.info('Opening settings window')
       createSettingsWindow()
+    })
+
+    ipcMain.handle(IPC_CHANNELS.OPEN_ABOUT, () => {
+      logger.info('Opening about window')
+      createAboutWindow()
     })
 
     ipcMain.handle(IPC_CHANNELS.TOGGLE_PROMPTER_VISIBILITY, () => {

@@ -7,7 +7,7 @@ files:
   - 'out/**/*'
 win:
   target: nsis
-  icon: public/icon.ico
+  icon: src/images/favicon.ico
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true

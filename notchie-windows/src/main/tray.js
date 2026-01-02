@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url'
 import { getPrompterWindow } from './windowManager.js'
 import { createEditorWindow } from './editorWindow.js'
 import { createSettingsWindow } from './settingsWindow.js'
+import { createAboutWindow } from './aboutWindow.js'
 import { app } from 'electron'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -12,21 +13,33 @@ const __dirname = path.dirname(__filename)
 let tray = null
 
 export function createTray() {
-  // Create a simple icon (in production, use a proper .ico file)
-  // For now, we'll create a simple icon programmatically
-  const iconPath = path.join(__dirname, '../../public/icon.png')
+  // Use icon from src/images directory
+  const iconPath = path.join(__dirname, '../../src/images/favicon-96x96.png')
   
   // Try to load icon, fallback to default if not found
   let icon
   try {
     icon = nativeImage.createFromPath(iconPath)
     if (icon.isEmpty()) {
-      // Create a simple 16x16 icon if file doesn't exist
-      icon = nativeImage.createEmpty()
+      // Try alternative icon if first one is empty
+      const altIconPath = path.join(__dirname, '../../src/images/web-app-manifest-192x192.png')
+      icon = nativeImage.createFromPath(altIconPath)
+      if (icon.isEmpty()) {
+        icon = nativeImage.createEmpty()
+      }
     }
   } catch (error) {
-    // Create empty icon as fallback
-    icon = nativeImage.createEmpty()
+    // Try alternative icon on error
+    try {
+      const altIconPath = path.join(__dirname, '../../src/images/web-app-manifest-192x192.png')
+      icon = nativeImage.createFromPath(altIconPath)
+      if (icon.isEmpty()) {
+        icon = nativeImage.createEmpty()
+      }
+    } catch (altError) {
+      // Create empty icon as fallback
+      icon = nativeImage.createEmpty()
+    }
   }
 
   tray = new Tray(icon)
@@ -85,6 +98,12 @@ function updateTrayMenu() {
       label: 'Ustawienia',
       click: () => {
         createSettingsWindow()
+      }
+    },
+    {
+      label: 'O aplikacji',
+      click: () => {
+        createAboutWindow()
       }
     },
     { type: 'separator' },

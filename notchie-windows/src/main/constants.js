@@ -22,6 +22,7 @@ export const IPC_CHANNELS = {
   // Window controls
   OPEN_EDITOR: 'open-editor',
   OPEN_SETTINGS: 'open-settings',
+  OPEN_ABOUT: 'open-about',
   TOGGLE_PROMPTER_VISIBILITY: 'toggle-prompter-visibility',
   
   // Shortcuts

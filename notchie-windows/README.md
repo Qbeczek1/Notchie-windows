@@ -4,10 +4,10 @@
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
-![Electron](https://img.shields.io/badge/Electron-28.0-blue.svg)
-![React](https://img.shields.io/badge/React-18.2-blue.svg)
+![Electron](https://img.shields.io/badge/Electron-39.2-blue.svg)
+![React](https://img.shields.io/badge/React-19.2-blue.svg)
 
-**Profesjonalny teleprompter wyświetlający tekst jako overlay na ekranie**
+**Teleprompter wyświetlający tekst jako overlay na ekranie**
 
 [Features](#-funkcjonalności) • [Installation](#-instalacja) • [Usage](#-użycie) • [Development](#-rozwój) • [Contributing](#-współpraca)
 
@@ -27,8 +27,8 @@
 - ⌨️ **Globalne skróty** - Sterowanie bez fokusa okna
 - 🎨 **Pełna personalizacja** - Rozmiar czcionki, rodzina, prędkość scrollowania
 - 📁 **Import/Eksport** - Wczytuj i zapisuj skrypty z plików .txt
-- 🔍 **Screen Share Detection** - Automatyczne ukrywanie podczas udostępniania ekranu
 - 🎛️ **System Tray** - Minimalistyczna kontrola przez tray icon
+- ℹ️ **Okno About** - Informacje o aplikacji dostępne z paska kontrolnego
 
 ---
 
@@ -37,6 +37,7 @@
 ### MVP (v1.0)
 
 #### Podstawowe Okno
+
 - ✅ Floating window zawsze na wierzchu
 - ✅ Przezroczyste tło z regulowaną opacity (0.1-1.0)
 - ✅ Zmiana rozmiaru i pozycji okna
@@ -44,6 +45,7 @@
 - ✅ Drag & drop do przesuwania
 
 #### Edycja Tekstu
+
 - ✅ Prosty edytor tekstu (textarea)
 - ✅ Zapisywanie skryptu lokalnie
 - ✅ Import tekstu z pliku .txt
@@ -51,6 +53,7 @@
 - ✅ Live preview zmian w prompterze
 
 #### Auto-Scroll
+
 - ✅ Automatyczne przewijanie tekstu (60 FPS)
 - ✅ Regulacja prędkości (0.5-10 px/frame)
 - ✅ Pause on hover (najazd myszką pauzuje)
@@ -58,12 +61,14 @@
 - ✅ Reset do początku
 
 #### Globalne Skróty Klawiszowe
+
 - ✅ `Shift + ←` - Zmniejszenie prędkości
 - ✅ `Shift + →` - Zwiększenie prędkości
 - ✅ `Shift + Space` - Play/Pause toggle
 - ✅ `Shift + ↑` - Reset do początku
 
 #### Ustawienia
+
 - ✅ Okno settings (osobne)
 - ✅ Regulacja szerokości/wysokości okna (200-2000px / 50-1000px)
 - ✅ Regulacja opacity tła (0.1-1.0)
@@ -71,38 +76,52 @@
 - ✅ Regulacja rozmiaru czcionki (12-48px)
 - ✅ Prędkość scrollowania (default: 2 px/frame)
 
-#### Screen Share Detection
-- ✅ Wykrywanie gdy użytkownik sharuje ekran
-- ✅ Automatyczne ukrywanie okna podczas share
-- ✅ Przywracanie po zakończeniu share
+#### TODO: Screen Share Detection
+
+- Wykrywanie gdy użytkownik sharuje ekran
+- Automatyczne ukrywanie okna podczas share
+- Przywracanie po zakończeniu share
 
 #### System Tray
+
 - ✅ Tray icon w notification area
-- ✅ Menu kontekstowe (Show/Hide, Editor, Settings, Quit)
+- ✅ Menu kontekstowe (Show/Hide, Editor, Settings, About, Quit)
 - ✅ Kliknięcie lewym przyciskiem - toggle widoczności
+
+#### Okno About
+
+- ✅ Informacje o aplikacji i wersji
+- ✅ Dostępne z paska kontrolnego (ikona Info)
+- ✅ Dostępne z menu tray
 
 ---
 
 ## 🛠️ Tech Stack
 
 ### Frontend
-- **Framework**: [Electron](https://www.electronjs.org/) 28+
-- **UI Library**: [React](https://react.dev/) 18
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/) 3.4
-- **State Management**: [Zustand](https://zustand-demo.pmnd.rs/) 4.5
-- **Icons**: [Lucide React](https://lucide.dev/) 0.344
+
+- **Framework**: [Electron](https://www.electronjs.org/) 39.2.7
+- **UI Library**: [React](https://react.dev/) 19.2.3
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/) 4.1.18
+- **PostCSS Plugin**: [@tailwindcss/postcss](https://tailwindcss.com/) 4.1.18
+- **State Management**: [Zustand](https://zustand-demo.pmnd.rs/) 5.0.9
+- **Icons**: [Lucide React](https://lucide.dev/) 0.562.0
 
 ### Backend/System
+
 - **Runtime**: Node.js 20+
 - **File System**: `fs/promises` (Node.js native)
 - **Shortcuts**: `electron-globalShortcut`
 - **Window Management**: Electron BrowserWindow API
 - **Screen Capture**: `electron-desktopCapturer`
-- **Storage**: [electron-store](https://github.com/sindresorhus/electron-store) 10.0
+- **Storage**: [electron-store](https://github.com/sindresorhus/electron-store) 11.0.2
 
 ### Build & Development
-- **Build Tool**: [Vite](https://vitejs.dev/) 5.1
-- **Electron Builder**: [electron-builder](https://www.electron.build/) 24.9
+
+- **Build Tool**: [Vite](https://vitejs.dev/) 7.3.0
+- **Electron Vite**: [electron-vite](https://github.com/alex8088/electron-vite) 5.0.0
+- **React Plugin**: [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react) 5.1.2
+- **Electron Builder**: [electron-builder](https://www.electron.build/) 26.0.12
 - **Package Manager**: npm
 
 ---
@@ -118,12 +137,14 @@
 ### Development Setup
 
 1. **Sklonuj repozytorium**
+
    ```bash
-   git clone https://github.com/yourusername/notchie-windows.git
+   git clone https://github.com/Qbeczek1/notchie-windows.git
    cd notchie-windows
    ```
 
 2. **Zainstaluj zależności**
+
    ```bash
    npm install
    ```
@@ -136,11 +157,13 @@
 ### Build Produkcyjny
 
 1. **Zbuduj aplikację**
+
    ```bash
    npm run build
    ```
 
 2. **Utwórz installer dla Windows**
+
    ```bash
    npm run build:win
    ```
@@ -162,12 +185,14 @@
 ### Podstawowe Operacje
 
 #### Edycja Tekstu
+
 - **Otwórz Edytor**: Tray icon → "Otwórz Edytor" lub `Ctrl + E` (w przyszłości)
 - **Wczytaj z pliku**: Przycisk "Wczytaj z pliku" w edytorze
 - **Zapisz do pliku**: Przycisk "Zapisz do pliku" w edytorze
 - **Live Preview**: Zmiany w edytorze są widoczne natychmiast w prompterze
 
 #### Sterowanie Scrollowaniem
+
 - **Play/Pause**: `Shift + Space`
 - **Zwiększ prędkość**: `Shift + →`
 - **Zmniejsz prędkość**: `Shift + ←`
@@ -176,21 +201,27 @@
 - **Pause on hover**: Najedź myszką na okno
 
 #### Ustawienia
-- **Otwórz Ustawienia**: Tray icon → "Ustawienia"
+
+- **Otwórz Ustawienia**: Tray icon → "Ustawienia" lub ikona Settings w pasku kontrolnym
 - **Font Size**: Slider 12-48px
 - **Font Family**: Dropdown z dostępnymi czcionkami
-- **Scroll Speed**: Slider 0.5-10 px/frame
+- **Scroll Speed**: Slider 0.2-1.8 px/frame
 - **Opacity**: Slider 0.1-1.0 (10%-100%)
 - **Window Size**: Inputy dla szerokości i wysokości
 
+#### Okno About
+
+- **Otwórz About**: Tray icon → "O aplikacji" lub ikona Info w pasku kontrolnym
+- Wyświetla informacje o wersji aplikacji i technologiach
+
 ### Skróty Klawiszowe
 
-| Skrót | Akcja |
-|-------|-------|
-| `Shift + ←` | Zmniejsz prędkość scrollowania |
-| `Shift + →` | Zwiększ prędkość scrollowania |
-| `Shift + Space` | Play/Pause toggle |
-| `Shift + ↑` | Reset do początku |
+| Skrót           | Akcja                          |
+| --------------- | ------------------------------ |
+| `Shift + ←`     | Zmniejsz prędkość scrollowania |
+| `Shift + →`     | Zwiększ prędkość scrollowania  |
+| `Shift + Space` | Play/Pause toggle              |
+| `Shift + ↑`     | Reset do początku              |
 
 > **Uwaga**: Skróty działają globalnie, nawet gdy okno nie ma fokusa.
 
@@ -201,6 +232,7 @@
 ### Pliki Konfiguracyjne
 
 Ustawienia aplikacji są przechowywane w:
+
 - **Windows**: `%APPDATA%\notchie-windows\config.json`
 - **Skrypty**: `%USERPROFILE%\Documents\Notchie\`
 
@@ -226,13 +258,13 @@ Edytuj plik `src/main/constants.js`:
 
 ```javascript
 export const DEFAULT_SETTINGS = {
-  fontSize: 24,           // Zmień domyślny rozmiar czcionki
-  fontFamily: 'Arial, sans-serif',
-  scrollSpeed: 2,         // Zmień domyślną prędkość
+  fontSize: 24, // Zmień domyślny rozmiar czcionki
+  fontFamily: "Arial, sans-serif",
+  scrollSpeed: 2, // Zmień domyślną prędkość
   opacity: 0.9,
   windowWidth: 600,
-  windowHeight: 150
-}
+  windowHeight: 150,
+};
 ```
 
 ---
@@ -252,6 +284,7 @@ notchie-windows/
 │   │   ├── fileManager.js      # Operacje na plikach
 │   │   ├── editorWindow.js     # Okno edytora
 │   │   ├── settingsWindow.js   # Okno ustawień
+│   │   ├── aboutWindow.js      # Okno About
 │   │   ├── tray.js             # System tray
 │   │   ├── storage.js          # electron-store
 │   │   ├── constants.js        # Stałe aplikacji
@@ -265,7 +298,8 @@ notchie-windows/
 │   │   ├── components/
 │   │   │   ├── Prompter.jsx    # Główne okno telepromptera
 │   │   │   ├── Editor.jsx      # Edytor tekstu
-│   │   │   └── Settings.jsx    # Okno ustawień
+│   │   │   ├── Settings.jsx    # Okno ustawień
+│   │   │   └── About.jsx       # Okno About
 │   │   ├── hooks/
 │   │   │   └── useScroll.js    # Logika auto-scrollu
 │   │   ├── store/
@@ -280,6 +314,7 @@ notchie-windows/
 ├── package.json
 ├── electron.vite.config.js
 ├── tailwind.config.js
+├── postcss.config.js
 └── electron-builder.yml
 ```
 
@@ -308,27 +343,29 @@ Projekt stosuje najlepsze praktyki programistyczne:
 - ✅ **Niezawodność**: Comprehensive error handling, fallback values
 - ✅ **Developer Experience**: Structured logging, debugging tools
 
-Więcej szczegółów: [docs/Best-Practices-Applied.md](./docs/Best-Practices-Applied.md)
-
 ### Debugging
 
 #### Main Process
+
 Logi są wyświetlane w konsoli terminala. W development mode wszystkie poziomy są widoczne.
 
 #### Renderer Process
+
 Otwórz DevTools:
+
 - Automatycznie w development mode
 - Lub dodaj `prompterWindow.webContents.openDevTools()` w kodzie
 
 #### Logging
-```javascript
-import { createLogger } from './utils/logger.js'
-const logger = createLogger('MyModule')
 
-logger.info('Informacja')
-logger.warn('Ostrzeżenie')
-logger.error('Błąd', error)
-logger.debug('Debug info')
+```javascript
+import { createLogger } from "./utils/logger.js";
+const logger = createLogger("MyModule");
+
+logger.info("Informacja");
+logger.warn("Ostrzeżenie");
+logger.error("Błąd", error);
+logger.debug("Debug info");
 ```
 
 ---
@@ -337,13 +374,15 @@ logger.debug('Debug info')
 
 ### Problem: Okno nie jest przezroczyste
 
-**Rozwiązanie**: 
+**Rozwiązanie**:
+
 - Sprawdź czy używasz Windows 10/11
 - Upewnij się, że `transparent: true` jest ustawione w `windowManager.js`
 
 ### Problem: Skróty klawiszowe nie działają
 
 **Rozwiązanie**:
+
 - Sprawdź czy nie ma konfliktów z innymi aplikacjami
 - Uruchom aplikację jako administrator (jeśli wymagane)
 - Sprawdź logi w konsoli
@@ -351,6 +390,7 @@ logger.debug('Debug info')
 ### Problem: Screen share detection nie działa
 
 **Rozwiązanie**:
+
 - To jest znane ograniczenie Electron - detection może nie działać w 100%
 - Użyj ręcznego przełączania przez tray icon
 - Sprawdź czy aplikacja ma uprawnienia do screen capture
@@ -358,6 +398,7 @@ logger.debug('Debug info')
 ### Problem: Aplikacja nie zapisuje ustawień
 
 **Rozwiązanie**:
+
 - Sprawdź uprawnienia do zapisu w `%APPDATA%\notchie-windows\`
 - Sprawdź logi w konsoli
 - Sprawdź czy `electron-store` jest poprawnie zainstalowany
@@ -365,6 +406,7 @@ logger.debug('Debug info')
 ### Problem: Build nie działa
 
 **Rozwiązanie**:
+
 ```bash
 # Wyczyść cache
 rm -rf node_modules dist out release
@@ -372,23 +414,34 @@ npm install
 npm run build
 ```
 
+### Problem: Błąd Tailwind CSS PostCSS
+
+**Rozwiązanie**:
+
+- Tailwind CSS 4 wymaga pakietu `@tailwindcss/postcss`
+- Upewnij się, że masz zainstalowany: `npm install @tailwindcss/postcss --save-dev`
+- Sprawdź konfigurację w `postcss.config.js` i `electron.vite.config.js`
+
 ---
 
 ## 🗺️ Roadmap
 
 ### v1.1 (Planowane)
+
 - [ ] Voice-activated scrolling (Web Speech API)
 - [ ] Eksport do PDF/Word
 - [ ] Statystyki czytania (czas, słowa/minutę)
 - [ ] Więcej skrótów klawiszowych
 
 ### v1.2 (Planowane)
+
 - [ ] Multiple scripts/projekty
 - [ ] Cloud backup (opcjonalny)
 - [ ] Integracja z Notion/Google Docs
 - [ ] Markdown support
 
 ### v2.0 (Długoterminowe)
+
 - [ ] Mobile app (iOS/Android)
 - [ ] AI script generator
 - [ ] Collaboration features
@@ -398,7 +451,7 @@ npm run build
 
 ## 🤝 Współpraca
 
-Contributions są mile widziane! 
+Contributions są mile widziane!
 
 ### Jak Współpracować
 
@@ -417,7 +470,8 @@ Contributions są mile widziane!
 
 ### Reporting Bugs
 
-Użyj [GitHub Issues](https://github.com/yourusername/notchie-windows/issues) i podaj:
+Użyj [GitHub Issues](https://github.com/Qbeczek1/notchie-windows/issues) i podaj:
+
 - Opis problemu
 - Kroki do reprodukcji
 - Oczekiwane vs rzeczywiste zachowanie
@@ -438,14 +492,27 @@ Ten projekt jest licencjonowany na licencji MIT - zobacz plik [LICENSE](LICENSE)
 - [React](https://react.dev/) - Biblioteka UI
 - [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
 - [Zustand](https://zustand-demo.pmnd.rs/) - Lekki state management
+- [Lucide](https://lucide.dev/) - Ikony
+- [Vite](https://vitejs.dev/) - Build tool
 - Wszystkim contributorom i użytkownikom!
+
+## 🔒 Bezpieczeństwo
+
+Wszystkie zależności są zaktualizowane do najnowszych wersji z poprawkami bezpieczeństwa:
+
+- ✅ Electron 39.2.7 - naprawione podatności ASAR
+- ✅ Vite 7.3.0 - naprawione podatności esbuild
+- ✅ electron-vite 5.0.0 - naprawione podatności esbuild
+- ✅ Wszystkie moduły w najnowszych stabilnych wersjach
+
+Szczegóły: [docs/DEPENDENCIES_AUDIT.md](./docs/DEPENDENCIES_AUDIT.md)
 
 ---
 
 ## 📞 Kontakt
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/notchie-windows/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/notchie-windows/discussions)
+- **Issues**: [GitHub Issues](https://github.com/Qbeczek1/notchie-windows/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/Qbeczek1/notchie-windows/discussions)
 
 ---
 

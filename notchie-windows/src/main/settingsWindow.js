@@ -34,10 +34,15 @@ export function createSettingsWindow() {
   
   console.log('[SettingsWindow] Using preload path:', preloadPath)
 
+  // Set window icon
+  const iconPath = path.join(__dirname, '../../src/images/favicon.ico')
+  const icon = existsSync(iconPath) ? iconPath : undefined
+
   settingsWindow = new BrowserWindow({
     width: 600,
     height: 700,
     title: 'Notchie - Ustawienia',
+    icon: icon, // Set window icon
     webPreferences: {
       preload: preloadPath,
       nodeIntegration: false,
@@ -51,8 +56,9 @@ export function createSettingsWindow() {
   } else {
     const htmlPath = path.join(__dirname, '../renderer/index.html')
     settingsWindow.loadFile(htmlPath).then(() => {
-      // Set hash after load
-      settingsWindow.webContents.executeJavaScript(`window.location.hash = '#/settings'`)
+      // Set hash after load - use whitelisted hash value
+      const allowedHash = '#/settings'
+      settingsWindow.webContents.executeJavaScript(`window.location.hash = ${JSON.stringify(allowedHash)}`)
     })
   }
 

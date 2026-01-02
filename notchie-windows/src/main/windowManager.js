@@ -55,6 +55,10 @@ export function createPrompterWindow() {
   
   logger.debug('Using preload path:', preloadPath)
 
+  // Set window icon
+  const iconPath = path.join(__dirname, '../../src/images/favicon.ico')
+  const icon = existsSync(iconPath) ? iconPath : undefined
+
   prompterWindow = new BrowserWindow({
     width: savedBounds.width,
     height: savedBounds.height,
@@ -66,6 +70,7 @@ export function createPrompterWindow() {
     resizable: true,
     skipTaskbar: true,
     show: true, // Ensure window is visible by default
+    icon: icon, // Set window icon
     webPreferences: {
       preload: preloadPath,
       nodeIntegration: false,

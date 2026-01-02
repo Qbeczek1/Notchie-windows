@@ -20,6 +20,7 @@ const IPC_CHANNELS = {
   UPDATE_PROMPTER_TEXT: 'update-prompter-text',
   OPEN_EDITOR: 'open-editor',
   OPEN_SETTINGS: 'open-settings',
+  OPEN_ABOUT: 'open-about',
   TOGGLE_PROMPTER_VISIBILITY: 'toggle-prompter-visibility',
   SHORTCUT_SPEED_INCREASE: 'shortcut-speed-increase',
   SHORTCUT_SPEED_DECREASE: 'shortcut-speed-decrease',
@@ -83,7 +84,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Window controls
   openEditor: () => safeInvoke(IPC_CHANNELS.OPEN_EDITOR),
   openSettings: () => safeInvoke(IPC_CHANNELS.OPEN_SETTINGS),
+  openAbout: () => safeInvoke(IPC_CHANNELS.OPEN_ABOUT),
   togglePrompterVisibility: () => safeInvoke(IPC_CHANNELS.TOGGLE_PROMPTER_VISIBILITY),
+  
+  // App info
+  onAppInfo: (callback) => safeOn('app-info', callback),
   
   // Shortcuts
   onShortcut: (callback) => {

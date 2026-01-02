@@ -41,10 +41,15 @@ export function createEditorWindow() {
   
   logger.info('Using preload path:', preloadPath)
 
+  // Set window icon
+  const iconPath = path.join(__dirname, '../../src/images/favicon.ico')
+  const icon = existsSync(iconPath) ? iconPath : undefined
+
   editorWindow = new BrowserWindow({
     width: 800,
     height: 600,
     title: 'Notchie - Edytor Skryptu',
+    icon: icon, // Set window icon
     webPreferences: {
       preload: preloadPath,
       nodeIntegration: false,
@@ -58,8 +63,9 @@ export function createEditorWindow() {
   } else {
     const htmlPath = path.join(__dirname, '../renderer/index.html')
     editorWindow.loadFile(htmlPath).then(() => {
-      // Set hash after load
-      editorWindow.webContents.executeJavaScript(`window.location.hash = '#/editor'`)
+      // Set hash after load - use whitelisted hash value
+      const allowedHash = '#/editor'
+      editorWindow.webContents.executeJavaScript(`window.location.hash = ${JSON.stringify(allowedHash)}`)
     })
   }
 

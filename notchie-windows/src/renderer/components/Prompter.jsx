@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useCallback, useMemo, useState } from 'react'
 import useStore from '../store/useStore'
 import { useScroll } from '../hooks/useScroll'
+import { Edit, Settings, Info, Play, Pause } from 'lucide-react'
 
 /**
  * Prompter Component - Main teleprompter display window
@@ -186,9 +187,36 @@ function Prompter() {
 
   const displayText = text || 'Brak tekstu. Otwórz Edytor aby dodać skrypt.'
 
+  // Handle opening editor window
+  const handleOpenEditor = useCallback(() => {
+    if (window.electronAPI && window.electronAPI.openEditor) {
+      window.electronAPI.openEditor().catch((error) => {
+        console.error('Error opening editor:', error)
+      })
+    }
+  }, [])
+
+  // Handle opening settings window
+  const handleOpenSettings = useCallback(() => {
+    if (window.electronAPI && window.electronAPI.openSettings) {
+      window.electronAPI.openSettings().catch((error) => {
+        console.error('Error opening settings:', error)
+      })
+    }
+  }, [])
+
+  // Handle opening about window
+  const handleOpenAbout = useCallback(() => {
+    if (window.electronAPI && window.electronAPI.openAbout) {
+      window.electronAPI.openAbout().catch((error) => {
+        console.error('Error opening about:', error)
+      })
+    }
+  }, [])
+
   return (
     <div 
-      className="w-full h-full flex justify-center overflow-hidden cursor-move relative"
+      className="w-full h-full flex flex-col cursor-move relative"
       style={containerStyle}
       onWheel={handleWheel}
       onMouseEnter={handleMouseEnter}
@@ -196,36 +224,127 @@ function Prompter() {
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
     >
+      {/* Text container - takes available space */}
       <div 
-        ref={textContainerRef}
-        className="text-white px-8 py-4 text-center"
-        style={{
-          ...textStyle,
-          alignSelf: 'flex-start',
-          paddingTop: '20px'
-        }}
+        className="flex-1 flex justify-center overflow-hidden relative"
+        style={{ WebkitAppRegion: 'drag' }}
       >
-        {displayText}
-      </div>
-      
-      {/* Status indicator - fixed to top-right corner of window */}
-      {showStatus && (
         <div 
-          className="fixed text-xs opacity-70 text-white"
-          style={{ 
-            top: '8px',
-            right: '8px',
+          ref={textContainerRef}
+          className="text-white px-8 py-4 text-center"
+          style={{
+            ...textStyle,
+            alignSelf: 'flex-start',
+            paddingTop: '20px',
+            paddingBottom: '20px'
+          }}
+        >
+          {displayText}
+        </div>
+        
+        {/* Status indicator - fixed to top-right corner of window */}
+        {showStatus && (
+          <div 
+            className="absolute text-xs opacity-70 text-white"
+            style={{ 
+              top: '8px',
+              right: '8px',
+              WebkitAppRegion: 'no-drag',
+              zIndex: 1000,
+              pointerEvents: 'auto' // Enable mouse events for hover detection
+            }}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            aria-label={isPlaying ? `Playing at speed ${scrollSpeed.toFixed(1)}x` : `Paused at speed ${scrollSpeed.toFixed(1)}x`}
+          >
+            {isPlaying ? '▶' : '⏸'} {scrollSpeed.toFixed(1)}x
+          </div>
+        )}
+
+        {/* Control bar - fixed to right side */}
+        <div 
+          className="absolute right-0 top-0 bottom-0 flex flex-col items-center justify-center gap-4 px-2 py-4"
+          style={{
             WebkitAppRegion: 'no-drag',
             zIndex: 1000,
-            pointerEvents: 'auto' // Enable mouse events for hover detection
+            pointerEvents: 'auto'
           }}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-          aria-label={isPlaying ? `Playing at speed ${scrollSpeed.toFixed(1)}x` : `Paused at speed ${scrollSpeed.toFixed(1)}x`}
         >
-          {isPlaying ? '▶' : '⏸'} {scrollSpeed.toFixed(1)}x
+          {/* Editor button */}
+          <button
+            onClick={handleOpenEditor}
+            className="p-3 rounded-lg bg-black/50 hover:bg-black/70 text-white transition-colors duration-200 flex items-center justify-center"
+            style={{
+              WebkitAppRegion: 'no-drag',
+              cursor: 'pointer'
+            }}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            aria-label="Otwórz Edytor"
+            title="Otwórz Edytor"
+          >
+            <Edit size={20} />
+          </button>
+
+          {/* Settings button */}
+          <button
+            onClick={handleOpenSettings}
+            className="p-3 rounded-lg bg-black/50 hover:bg-black/70 text-white transition-colors duration-200 flex items-center justify-center"
+            style={{
+              WebkitAppRegion: 'no-drag',
+              cursor: 'pointer'
+            }}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            aria-label="Otwórz Ustawienia"
+            title="Otwórz Ustawienia"
+          >
+            <Settings size={20} />
+          </button>
+
+          {/* About button */}
+          <button
+            onClick={handleOpenAbout}
+            className="p-3 rounded-lg bg-black/50 hover:bg-black/70 text-white transition-colors duration-200 flex items-center justify-center"
+            style={{
+              WebkitAppRegion: 'no-drag',
+              cursor: 'pointer'
+            }}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            aria-label="O aplikacji"
+            title="O aplikacji"
+          >
+            <Info size={20} />
+          </button>
         </div>
-      )}
+      </div>
+
+      {/* Shortcuts info bar - at bottom, not overlay */}
+      <div 
+        className="flex items-center justify-center gap-6 px-4 py-2 bg-black/60 text-white text-xs flex-shrink-0"
+        style={{
+          WebkitAppRegion: 'no-drag',
+          pointerEvents: 'auto'
+        }}
+      >
+        <div className="flex items-center gap-2">
+          <span className="opacity-70">Play/Pause:</span>
+          <kbd className="px-2 py-1 bg-black/50 rounded border border-white/20">Shift + Space</kbd>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="opacity-70">Speed +:</span>
+          <kbd className="px-2 py-1 bg-black/50 rounded border border-white/20">Shift + →</kbd>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="opacity-70">Speed -:</span>
+          <kbd className="px-2 py-1 bg-black/50 rounded border border-white/20">Shift + ←</kbd>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="opacity-70">Reset:</span>
+          <kbd className="px-2 py-1 bg-black/50 rounded border border-white/20">Shift + ↑</kbd>
+        </div>
+      </div>
     </div>
   )
 }
