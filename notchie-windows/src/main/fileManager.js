@@ -3,8 +3,13 @@ import { readFile, writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 import { homedir } from 'os'
 import { existsSync } from 'fs'
+import { FILE_CONFIG } from './constants.js'
+import { createLogger } from './utils/logger.js'
+import { validateText } from './utils/validators.js'
 
-const SCRIPTS_DIR = join(homedir(), 'Documents', 'Notchie')
+const logger = createLogger('FileManager')
+
+const SCRIPTS_DIR = join(homedir(), 'Documents', FILE_CONFIG.SCRIPTS_DIR_NAME)
 
 // Ensure scripts directory exists
 async function ensureScriptsDir() {
@@ -14,72 +19,101 @@ async function ensureScriptsDir() {
 }
 
 export async function openFileDialog() {
-  const result = await dialog.showOpenDialog({
-    title: 'Otwórz plik tekstowy',
-    filters: [
-      { name: 'Pliki tekstowe', extensions: ['txt'] },
-      { name: 'Wszystkie pliki', extensions: ['*'] }
-    ],
-    properties: ['openFile']
-  })
-
-  if (result.canceled || result.filePaths.length === 0) {
-    return null
-  }
-
   try {
+    const result = await dialog.showOpenDialog({
+      title: 'Otwórz plik tekstowy',
+      filters: [
+        { name: 'Pliki tekstowe', extensions: FILE_CONFIG.SUPPORTED_EXTENSIONS },
+        { name: 'Wszystkie pliki', extensions: ['*'] }
+      ],
+      properties: ['openFile']
+    })
+
+    if (result.canceled || result.filePaths.length === 0) {
+      logger.debug('File dialog canceled')
+      return null
+    }
+
     const filePath = result.filePaths[0]
+    
+    // Check file size before reading
+    const stats = await import('fs/promises').then(fs => fs.stat(filePath))
+    if (stats.size > FILE_CONFIG.MAX_FILE_SIZE) {
+      throw new Error(`Plik jest zbyt duży. Maksymalny rozmiar: ${FILE_CONFIG.MAX_FILE_SIZE / 1024 / 1024}MB`)
+    }
+
     const content = await readFile(filePath, 'utf-8')
-    return { filePath, content }
+    const validatedContent = validateText(content)
+    
+    logger.info(`File opened: ${filePath} (${stats.size} bytes)`)
+    return { filePath, content: validatedContent }
   } catch (error) {
-    console.error('Error reading file:', error)
+    logger.error('Error opening file:', error)
     throw error
   }
 }
 
 export async function saveFileDialog(content) {
-  const result = await dialog.showSaveDialog({
-    title: 'Zapisz skrypt',
-    defaultPath: join(SCRIPTS_DIR, 'skrypt.txt'),
-    filters: [
-      { name: 'Pliki tekstowe', extensions: ['txt'] },
-      { name: 'Wszystkie pliki', extensions: ['*'] }
-    ]
-  })
-
-  if (result.canceled || !result.filePath) {
-    return null
+  if (typeof content !== 'string') {
+    throw new Error('Content must be a string')
   }
 
   try {
-    await writeFile(result.filePath, content, 'utf-8')
+    const validatedContent = validateText(content)
+    
+    const result = await dialog.showSaveDialog({
+      title: 'Zapisz skrypt',
+      defaultPath: join(SCRIPTS_DIR, FILE_CONFIG.DEFAULT_SCRIPT_NAME),
+      filters: [
+        { name: 'Pliki tekstowe', extensions: FILE_CONFIG.SUPPORTED_EXTENSIONS },
+        { name: 'Wszystkie pliki', extensions: ['*'] }
+      ]
+    })
+
+    if (result.canceled || !result.filePath) {
+      logger.debug('Save dialog canceled')
+      return null
+    }
+
+    await writeFile(result.filePath, validatedContent, 'utf-8')
+    logger.info(`File saved: ${result.filePath}`)
     return result.filePath
   } catch (error) {
-    console.error('Error saving file:', error)
+    logger.error('Error saving file:', error)
     throw error
   }
 }
 
 export async function readTextFile(filePath) {
   try {
+    if (!filePath || typeof filePath !== 'string') {
+      throw new Error('Invalid file path')
+    }
+    
     const content = await readFile(filePath, 'utf-8')
-    return content
+    return validateText(content)
   } catch (error) {
-    console.error('Error reading file:', error)
+    logger.error('Error reading file:', error)
     throw error
   }
 }
 
 export async function writeTextFile(filePath, content) {
   try {
+    if (typeof content !== 'string') {
+      throw new Error('Content must be a string')
+    }
+    
     await ensureScriptsDir()
+    const validatedContent = validateText(content)
     const fullPath = filePath.startsWith(SCRIPTS_DIR) 
       ? filePath 
       : join(SCRIPTS_DIR, filePath)
-    await writeFile(fullPath, content, 'utf-8')
+    await writeFile(fullPath, validatedContent, 'utf-8')
+    logger.info(`Text file written: ${fullPath}`)
     return fullPath
   } catch (error) {
-    console.error('Error writing file:', error)
+    logger.error('Error writing file:', error)
     throw error
   }
 }

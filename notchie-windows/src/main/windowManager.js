@@ -3,9 +3,15 @@ import Store from 'electron-store'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { getSettings, saveSettings, saveText, getText } from './storage.js'
+import { IPC_CHANNELS } from './constants.js'
+import { createLogger } from './utils/logger.js'
+import { validateWindowWidth, validateWindowHeight } from './utils/validators.js'
+import { withErrorHandling, withErrorHandlingSync } from './utils/errorHandler.js'
+import { openFileDialog, saveFileDialog } from './fileManager.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
+const logger = createLogger('WindowManager')
 
 const windowStore = new Store({
   defaults: {
@@ -54,34 +60,55 @@ export function createPrompterWindow() {
   // Enable dragging - ignore mouse events but forward them
   prompterWindow.setIgnoreMouseEvents(false, { forward: true })
 
-  // Save window position and size
-  prompterWindow.on('moved', () => {
-    const bounds = prompterWindow.getBounds()
-    windowStore.set('windowX', bounds.x)
-    windowStore.set('windowY', bounds.y)
-  })
+  // Save window position and size with debouncing
+  let saveTimeout = null
+  const saveBounds = () => {
+    if (saveTimeout) {
+      clearTimeout(saveTimeout)
+    }
+    saveTimeout = setTimeout(() => {
+      try {
+        const bounds = prompterWindow.getBounds()
+        windowStore.set('windowX', bounds.x)
+        windowStore.set('windowY', bounds.y)
+        windowStore.set('windowWidth', validateWindowWidth(bounds.width))
+        windowStore.set('windowHeight', validateWindowHeight(bounds.height))
+      } catch (error) {
+        logger.error('Error saving window bounds:', error)
+      }
+    }, 300) // Debounce 300ms
+  }
 
-  prompterWindow.on('resized', () => {
-    const bounds = prompterWindow.getBounds()
-    windowStore.set('windowWidth', bounds.width)
-    windowStore.set('windowHeight', bounds.height)
-  })
+  prompterWindow.on('moved', saveBounds)
+  prompterWindow.on('resized', saveBounds)
 
   // Send initial settings to renderer when window is ready
   prompterWindow.webContents.once('did-finish-load', () => {
-    const settings = getSettings()
-    prompterWindow.webContents.send('load-settings', settings)
+    try {
+      const settings = getSettings()
+      prompterWindow.webContents.send(IPC_CHANNELS.LOAD_SETTINGS, settings)
+      logger.info('Settings loaded and sent to renderer')
+    } catch (error) {
+      logger.error('Error loading settings:', error)
+    }
   })
 
   // Listen for settings updates and apply window size changes
-  ipcMain.on('settings-updated', (event, settings) => {
-    if (settings.windowWidth && settings.windowHeight && prompterWindow) {
-      const currentBounds = prompterWindow.getBounds()
-      prompterWindow.setBounds({
-        ...currentBounds,
-        width: settings.windowWidth,
-        height: settings.windowHeight
-      })
+  ipcMain.on(IPC_CHANNELS.SETTINGS_UPDATED, (event, settings) => {
+    try {
+      if (settings?.windowWidth && settings?.windowHeight && prompterWindow) {
+        const validatedWidth = validateWindowWidth(settings.windowWidth)
+        const validatedHeight = validateWindowHeight(settings.windowHeight)
+        const currentBounds = prompterWindow.getBounds()
+        prompterWindow.setBounds({
+          ...currentBounds,
+          width: validatedWidth,
+          height: validatedHeight
+        })
+        logger.debug('Window size updated from settings')
+      }
+    } catch (error) {
+      logger.error('Error updating window size from settings:', error)
     }
   })
 
@@ -97,57 +124,62 @@ export function getPrompterWindow() {
 }
 
 // IPC handlers for window management
-ipcMain.handle('get-window-bounds', () => {
+ipcMain.handle(IPC_CHANNELS.GET_WINDOW_BOUNDS, withErrorHandlingSync(() => {
   if (prompterWindow) {
     return prompterWindow.getBounds()
   }
   return null
-})
+}))
 
-ipcMain.handle('set-window-bounds', (event, bounds) => {
-  if (prompterWindow) {
-    prompterWindow.setBounds(bounds)
-    windowStore.set('windowWidth', bounds.width)
-    windowStore.set('windowHeight', bounds.height)
-    windowStore.set('windowX', bounds.x)
-    windowStore.set('windowY', bounds.y)
+ipcMain.handle(IPC_CHANNELS.SET_WINDOW_BOUNDS, withErrorHandlingSync((event, bounds) => {
+  if (prompterWindow && bounds) {
+    const validatedBounds = {
+      ...bounds,
+      width: validateWindowWidth(bounds.width),
+      height: validateWindowHeight(bounds.height)
+    }
+    prompterWindow.setBounds(validatedBounds)
+    windowStore.set('windowWidth', validatedBounds.width)
+    windowStore.set('windowHeight', validatedBounds.height)
+    windowStore.set('windowX', validatedBounds.x)
+    windowStore.set('windowY', validatedBounds.y)
+    logger.debug('Window bounds updated')
   }
-})
+}))
 
 // IPC handlers for settings
-ipcMain.handle('get-settings', () => {
+ipcMain.handle(IPC_CHANNELS.GET_SETTINGS, withErrorHandlingSync(() => {
   return getSettings()
-})
+}))
 
-ipcMain.handle('save-settings', (event, settings) => {
-  saveSettings(settings)
-})
+ipcMain.handle(IPC_CHANNELS.SAVE_SETTINGS, withErrorHandlingSync((event, settings) => {
+  if (settings) {
+    saveSettings(settings)
+    logger.debug('Settings saved')
+  }
+}))
 
-ipcMain.handle('save-text', (event, text) => {
-  saveText(text)
-})
+ipcMain.handle(IPC_CHANNELS.SAVE_TEXT, withErrorHandlingSync((event, text) => {
+  if (typeof text === 'string') {
+    saveText(text)
+    logger.debug('Text saved')
+  }
+}))
 
-ipcMain.handle('get-text', () => {
+ipcMain.handle(IPC_CHANNELS.GET_TEXT, withErrorHandlingSync(() => {
   return getText()
-})
+}))
 
 // IPC handlers for file operations
-import { openFileDialog, saveFileDialog, readTextFile, writeTextFile } from './fileManager.js'
+ipcMain.handle(IPC_CHANNELS.OPEN_FILE_DIALOG, withErrorHandling(async () => {
+  logger.info('Opening file dialog')
+  return await openFileDialog()
+}))
 
-ipcMain.handle('open-file-dialog', async () => {
-  try {
-    return await openFileDialog()
-  } catch (error) {
-    console.error('Error in open-file-dialog:', error)
-    return { error: error.message }
+ipcMain.handle(IPC_CHANNELS.SAVE_FILE_DIALOG, withErrorHandling(async (event, content) => {
+  if (typeof content !== 'string') {
+    throw new Error('Content must be a string')
   }
-})
-
-ipcMain.handle('save-file-dialog', async (event, content) => {
-  try {
-    return await saveFileDialog(content)
-  } catch (error) {
-    console.error('Error in save-file-dialog:', error)
-    return { error: error.message }
-  }
-})
+  logger.info('Saving file dialog')
+  return await saveFileDialog(content)
+}))

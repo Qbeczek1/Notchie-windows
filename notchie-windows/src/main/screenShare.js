@@ -1,5 +1,9 @@
 import { desktopCapturer } from 'electron'
 import { getPrompterWindow } from './windowManager.js'
+import { SCREEN_SHARE_CONFIG } from './constants.js'
+import { createLogger } from './utils/logger.js'
+
+const logger = createLogger('ScreenShare')
 
 let detectionInterval = null
 let wasSharing = false
@@ -19,7 +23,7 @@ async function detectScreenShare() {
     // Get all available sources
     const sources = await desktopCapturer.getSources({
       types: ['screen', 'window'],
-      thumbnailSize: { width: 1, height: 1 } // Minimal size for performance
+      thumbnailSize: SCREEN_SHARE_CONFIG.THUMBNAIL_SIZE
     })
 
     // Check if any screen source is being captured
@@ -40,11 +44,11 @@ async function detectScreenShare() {
       if (isSharing) {
         // Hide prompter window
         prompterWindow.hide()
-        console.log('Screen share detected - hiding prompter window')
+        logger.debug('Screen share detected - hiding prompter window')
       } else {
         // Show prompter window
         prompterWindow.show()
-        console.log('Screen share ended - showing prompter window')
+        logger.debug('Screen share ended - showing prompter window')
       }
     }
   } catch (error) {
@@ -54,19 +58,27 @@ async function detectScreenShare() {
 
 /**
  * Start screen share detection
- * @param {number} intervalMs - Detection interval in milliseconds (default: 2000)
+ * @param {number} intervalMs - Detection interval in milliseconds (default: from config)
  */
-export function startScreenShareDetection(intervalMs = 2000) {
+export function startScreenShareDetection(intervalMs = SCREEN_SHARE_CONFIG.DETECTION_INTERVAL_MS) {
   if (detectionInterval) {
+    logger.warn('Screen share detection already running, stopping first')
     stopScreenShareDetection()
   }
 
-  // Initial detection
-  detectScreenShare()
+  try {
+    // Initial detection
+    detectScreenShare()
 
-  // Set up interval
-  detectionInterval = setInterval(detectScreenShare, intervalMs)
-  console.log(`Screen share detection started (interval: ${intervalMs}ms)`)
+    // Set up interval
+    detectionInterval = setInterval(() => {
+      detectScreenShare()
+    }, intervalMs)
+    
+    logger.info(`Screen share detection started (interval: ${intervalMs}ms)`)
+  } catch (error) {
+    logger.error('Error starting screen share detection:', error)
+  }
 }
 
 /**
@@ -77,7 +89,7 @@ export function stopScreenShareDetection() {
     clearInterval(detectionInterval)
     detectionInterval = null
     wasSharing = false
-    console.log('Screen share detection stopped')
+    logger.info('Screen share detection stopped')
   }
 }
 
@@ -88,10 +100,18 @@ export function stopScreenShareDetection() {
 export function togglePrompterVisibility() {
   const prompterWindow = getPrompterWindow()
   if (prompterWindow) {
-    if (prompterWindow.isVisible()) {
-      prompterWindow.hide()
-    } else {
-      prompterWindow.show()
+    try {
+      if (prompterWindow.isVisible()) {
+        prompterWindow.hide()
+        logger.debug('Prompter window hidden')
+      } else {
+        prompterWindow.show()
+        logger.debug('Prompter window shown')
+      }
+    } catch (error) {
+      logger.error('Error toggling prompter visibility:', error)
     }
+  } else {
+    logger.warn('Cannot toggle visibility: prompter window not found')
   }
 }

@@ -1,7 +1,11 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useCallback, useMemo } from 'react'
 import useStore from '../store/useStore'
 import { useScroll } from '../hooks/useScroll'
 
+/**
+ * Prompter Component - Main teleprompter display window
+ * Displays scrolling text with customizable appearance
+ */
 function Prompter() {
   const { 
     text, 
@@ -20,85 +24,107 @@ function Prompter() {
   const textContainerRef = useRef(null)
   const { handleWheel, handleMouseEnter, handleMouseLeave } = useScroll()
 
-  // Load settings from electron-store on mount
+  // Load settings from electron-store on mount (only once)
   useEffect(() => {
+    let cleanup = null
+    
     const loadSettings = async () => {
-      if (window.electronAPI) {
+      if (!window.electronAPI) return
+      
+      try {
         const settings = await window.electronAPI.getSettings()
         if (settings) {
           updateSettings(settings)
         }
         
         // Listen for settings updates from main process
-        window.electronAPI.onLoadSettings((settings) => {
-          updateSettings(settings)
+        cleanup = window.electronAPI.onLoadSettings((newSettings) => {
+          if (newSettings) {
+            updateSettings(newSettings)
+          }
         })
+      } catch (error) {
+        console.error('Error loading settings:', error)
       }
     }
     
     loadSettings()
-  }, [updateSettings])
-
-  // Save text when it changes
-  useEffect(() => {
-    if (window.electronAPI && text) {
-      window.electronAPI.saveText(text)
+    
+    return () => {
+      if (cleanup) cleanup()
     }
+  }, []) // Empty deps - only run on mount
+
+  // Save text when it changes (debounced)
+  useEffect(() => {
+    if (!window.electronAPI || !text) return
+    
+    const timeoutId = setTimeout(() => {
+      window.electronAPI.saveText(text).catch((error) => {
+        console.error('Error saving text:', error)
+      })
+    }, 500) // Debounce 500ms
+    
+    return () => clearTimeout(timeoutId)
   }, [text])
 
-  // Handle global shortcuts
+  // Handle global shortcuts with useCallback to prevent recreation
+  const handleShortcut = useCallback((action) => {
+    switch (action) {
+      case 'speed-increase': {
+        const newSpeed = scrollSpeed + 0.5
+        setScrollSpeed(newSpeed)
+        // Save to electron-store (fire and forget)
+        window.electronAPI?.saveSettings({ scrollSpeed: newSpeed }).catch(console.error)
+        break
+      }
+      case 'speed-decrease': {
+        const newSpeed = Math.max(0.1, scrollSpeed - 0.5)
+        setScrollSpeed(newSpeed)
+        window.electronAPI?.saveSettings({ scrollSpeed: newSpeed }).catch(console.error)
+        break
+      }
+      case 'toggle-play':
+        togglePlay()
+        break
+      case 'reset':
+        resetScroll()
+        break
+      default:
+        break
+    }
+  }, [scrollSpeed, setScrollSpeed, togglePlay, resetScroll])
+
   useEffect(() => {
     if (!window.electronAPI) return
 
-    const handleShortcut = (action) => {
-      switch (action) {
-        case 'speed-increase':
-          const newSpeedIncrease = scrollSpeed + 0.5
-          setScrollSpeed(newSpeedIncrease)
-          // Save to electron-store
-          if (window.electronAPI) {
-            window.electronAPI.saveSettings({ scrollSpeed: newSpeedIncrease })
-          }
-          break
-        case 'speed-decrease':
-          const newSpeedDecrease = Math.max(0.1, scrollSpeed - 0.5)
-          setScrollSpeed(newSpeedDecrease)
-          // Save to electron-store
-          if (window.electronAPI) {
-            window.electronAPI.saveSettings({ scrollSpeed: newSpeedDecrease })
-          }
-          break
-        case 'toggle-play':
-          togglePlay()
-          break
-        case 'reset':
-          resetScroll()
-          break
-        default:
-          break
-      }
-    }
+    const cleanup = window.electronAPI.onShortcut(handleShortcut)
+    
+    return cleanup || undefined
+  }, [handleShortcut])
 
-    window.electronAPI.onShortcut(handleShortcut)
+  // Memoize styles to prevent unnecessary recalculations
+  const containerStyle = useMemo(() => ({
+    backgroundColor: `rgba(0, 0, 0, ${opacity})`,
+    userSelect: 'none',
+    WebkitAppRegion: 'drag'
+  }), [opacity])
 
-    return () => {
-      if (window.electronAPI && window.electronAPI.removeAllListeners) {
-        window.electronAPI.removeAllListeners('shortcut-speed-increase')
-        window.electronAPI.removeAllListeners('shortcut-speed-decrease')
-        window.electronAPI.removeAllListeners('shortcut-toggle-play')
-        window.electronAPI.removeAllListeners('shortcut-reset')
-      }
-    }
-  }, [scrollSpeed, setScrollSpeed, togglePlay, resetScroll])
+  const textStyle = useMemo(() => ({
+    fontFamily: fontFamily,
+    fontSize: `${fontSize}px`,
+    lineHeight: '1.6',
+    transform: `translateY(-${scrollPosition}px)`,
+    willChange: 'transform', // Optimize for animation
+    transition: 'none' // Remove transition for smooth manual scroll
+  }), [fontFamily, fontSize, scrollPosition])
+
+  const displayText = text || 'Brak tekstu. Otwórz Edytor aby dodać skrypt.'
 
   return (
     <div 
       className="w-full h-full flex items-center justify-center overflow-hidden cursor-move"
-      style={{
-        backgroundColor: `rgba(0, 0, 0, ${opacity})`,
-        userSelect: 'none',
-        WebkitAppRegion: 'drag'
-      }}
+      style={containerStyle}
       onWheel={handleWheel}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -106,22 +132,16 @@ function Prompter() {
       <div 
         ref={textContainerRef}
         className="text-white px-8 py-4 text-center relative"
-        style={{
-          fontFamily: fontFamily,
-          fontSize: `${fontSize}px`,
-          lineHeight: '1.6',
-          transform: `translateY(-${scrollPosition}px)`,
-          willChange: 'transform', // Optimize for animation
-          transition: 'none' // Remove transition for smooth manual scroll
-        }}
+        style={textStyle}
       >
-        {text || 'Brak tekstu. Otwórz Edytor aby dodać skrypt.'}
+        {displayText}
         
-        {/* Status indicator (only visible on hover) */}
+        {/* Status indicator (only visible when playing) */}
         {isPlaying && (
           <div 
-            className="absolute top-2 right-2 text-xs opacity-50"
+            className="absolute top-2 right-2 text-xs opacity-50 pointer-events-none"
             style={{ WebkitAppRegion: 'no-drag' }}
+            aria-label={`Playing at speed ${scrollSpeed.toFixed(1)}x`}
           >
             ▶ {scrollSpeed.toFixed(1)}x
           </div>
@@ -131,4 +151,5 @@ function Prompter() {
   )
 }
 
-export default Prompter
+// Memoize component to prevent unnecessary re-renders
+export default React.memo(Prompter)

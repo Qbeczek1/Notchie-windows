@@ -1,4 +1,9 @@
 import Store from 'electron-store'
+import { DEFAULT_SETTINGS } from './constants.js'
+import { createLogger } from './utils/logger.js'
+import { validateText, validateFontSize, validateFontFamily, validateScrollSpeed, validateOpacity, validateWindowWidth, validateWindowHeight } from './utils/validators.js'
+
+const logger = createLogger('Storage')
 
 const store = new Store({
   defaults: {
@@ -6,63 +11,91 @@ const store = new Store({
     lastScript: '',
     
     // Scroll settings
-    scrollSpeed: 2,
+    scrollSpeed: DEFAULT_SETTINGS.scrollSpeed,
     
     // Display settings
-    fontSize: 24,
-    fontFamily: 'Arial, sans-serif',
-    opacity: 0.9,
+    fontSize: DEFAULT_SETTINGS.fontSize,
+    fontFamily: DEFAULT_SETTINGS.fontFamily,
+    opacity: DEFAULT_SETTINGS.opacity,
     
     // Window settings
-    windowWidth: 600,
-    windowHeight: 150,
+    windowWidth: DEFAULT_SETTINGS.windowWidth,
+    windowHeight: DEFAULT_SETTINGS.windowHeight,
     windowX: undefined,
     windowY: undefined
   }
 })
 
 export function getSettings() {
-  return {
-    text: store.get('lastScript'),
-    scrollSpeed: store.get('scrollSpeed'),
-    fontSize: store.get('fontSize'),
-    fontFamily: store.get('fontFamily'),
-    opacity: store.get('opacity'),
-    windowWidth: store.get('windowWidth'),
-    windowHeight: store.get('windowHeight')
+  try {
+    return {
+      text: validateText(store.get('lastScript')),
+      scrollSpeed: validateScrollSpeed(store.get('scrollSpeed')),
+      fontSize: validateFontSize(store.get('fontSize')),
+      fontFamily: validateFontFamily(store.get('fontFamily')),
+      opacity: validateOpacity(store.get('opacity')),
+      windowWidth: validateWindowWidth(store.get('windowWidth')),
+      windowHeight: validateWindowHeight(store.get('windowHeight'))
+    }
+  } catch (error) {
+    logger.error('Error getting settings:', error)
+    return DEFAULT_SETTINGS
   }
 }
 
 export function saveSettings(settings) {
-  if (settings.text !== undefined) {
-    store.set('lastScript', settings.text)
+  if (!settings || typeof settings !== 'object') {
+    logger.warn('Invalid settings object provided')
+    return
   }
-  if (settings.scrollSpeed !== undefined) {
-    store.set('scrollSpeed', settings.scrollSpeed)
-  }
-  if (settings.fontSize !== undefined) {
-    store.set('fontSize', settings.fontSize)
-  }
-  if (settings.fontFamily !== undefined) {
-    store.set('fontFamily', settings.fontFamily)
-  }
-  if (settings.opacity !== undefined) {
-    store.set('opacity', settings.opacity)
-  }
-  if (settings.windowWidth !== undefined) {
-    store.set('windowWidth', settings.windowWidth)
-  }
-  if (settings.windowHeight !== undefined) {
-    store.set('windowHeight', settings.windowHeight)
+
+  try {
+    if (settings.text !== undefined) {
+      store.set('lastScript', validateText(settings.text))
+    }
+    if (settings.scrollSpeed !== undefined) {
+      store.set('scrollSpeed', validateScrollSpeed(settings.scrollSpeed))
+    }
+    if (settings.fontSize !== undefined) {
+      store.set('fontSize', validateFontSize(settings.fontSize))
+    }
+    if (settings.fontFamily !== undefined) {
+      store.set('fontFamily', validateFontFamily(settings.fontFamily))
+    }
+    if (settings.opacity !== undefined) {
+      store.set('opacity', validateOpacity(settings.opacity))
+    }
+    if (settings.windowWidth !== undefined) {
+      store.set('windowWidth', validateWindowWidth(settings.windowWidth))
+    }
+    if (settings.windowHeight !== undefined) {
+      store.set('windowHeight', validateWindowHeight(settings.windowHeight))
+    }
+    logger.debug('Settings saved successfully')
+  } catch (error) {
+    logger.error('Error saving settings:', error)
+    throw error
   }
 }
 
 export function saveText(text) {
-  store.set('lastScript', text)
+  try {
+    const validatedText = validateText(text)
+    store.set('lastScript', validatedText)
+    logger.debug('Text saved successfully')
+  } catch (error) {
+    logger.error('Error saving text:', error)
+    throw error
+  }
 }
 
 export function getText() {
-  return store.get('lastScript')
+  try {
+    return validateText(store.get('lastScript'))
+  } catch (error) {
+    logger.error('Error getting text:', error)
+    return ''
+  }
 }
 
 export default store
