@@ -236,11 +236,31 @@ npm install zustand @react-native-async-storage/async-storage
 
 ## ⚠️ Ograniczenia i Wyzwania
 
-### 1. Uprawnienie SYSTEM_ALERT_WINDOW
+### 1. Uprawnienie SYSTEM_ALERT_WINDOW (KRYTYCZNE!)
 
-- Wymaga ręcznego przyznania przez użytkownika
-- Niektóre producenci (Xiaomi, Huawei) mają dodatkowe ograniczenia
-- Na Androidzie 10+ jest bardziej restrykcyjne
+**⚠️ To uprawnienie NIE jest domyślne i wymaga ręcznej konfiguracji przez użytkownika!**
+
+**Proces przyznania uprawnienia:**
+1. Aplikacja wyświetla prośbę o uprawnienie
+2. System przekierowuje do: Ustawienia → Aplikacje → Specjalny dostęp → Wyświetlanie nad innymi
+3. Użytkownik musi RĘCZNIE włączyć przełącznik
+4. Użytkownik wraca do aplikacji
+
+**Szacowana konwersja:**
+- Instaluje aplikację: 100%
+- Klika "Włącz overlay": 60-70%
+- Faktycznie kończy konfigurację: 30-50%
+
+**Dodatkowe problemy z chińskimi ROM-ami:**
+
+| Producent | Dodatkowy problem |
+|-----------|-------------------|
+| Xiaomi/Redmi | Dodatkowe uprawnienie "Display pop-up windows while running in background" |
+| Huawei/Honor | "App launch" manager może blokować overlay |
+| Oppo/Realme/OnePlus | Osobne uprawnienie "Floating windows" |
+| Vivo | "Display pop-up window" w ustawieniach aplikacji |
+
+**To jest standard branżowy** - wszystkie aplikacje telepromptera na Androidzie wymagają tego uprawnienia. Nie ma alternatywy dla pełnego overlay.
 
 ### 2. Tryby oszczędzania baterii
 
@@ -257,6 +277,71 @@ npm install zustand @react-native-async-storage/async-storage
 
 - Auto-scroll w 60 FPS może być intensywny
 - Rozwiązanie: Optymalizacja animacji, opcja 30 FPS
+
+---
+
+## 🔄 Alternatywy bez specjalnych uprawnień
+
+Jeśli bariera uprawnień jest zbyt duża, rozważ alternatywne podejścia:
+
+### Alternatywa 1: Wbudowana kamera + teleprompter
+
+```
+Zamiast overlay nad Instagramem:
+→ Własna aplikacja z kamerą + teleprompter zintegrowane
+→ Użytkownik nagrywa video w aplikacji ScriptView
+→ Eksportuje gotowe video do Instagram/TikTok
+
+✅ Zalety:
+- Zero specjalnych uprawnień
+- Pełna kontrola nad UX
+- Działa na wszystkich urządzeniach
+
+❌ Wady:
+- Dodatkowy krok eksportu
+- Brak bezpośredniej integracji z Instagram Stories
+- Użytkownik musi opuścić docelową aplikację
+```
+
+### Alternatywa 2: Split-screen mode
+
+```
+→ ScriptView w górnej połowie ekranu
+→ Instagram/kamera w dolnej połowie
+→ Używa standardowego Android split-screen
+
+✅ Zalety:
+- Zero uprawnień
+- Natywna funkcja Androida
+
+❌ Wady:
+- Mniejsze okno dla obu aplikacji
+- Nie wszystkie aplikacje wspierają split-screen
+- Instagram Stories nie działa w split-screen
+```
+
+### Alternatywa 3: Companion mode (drugi ekran)
+
+```
+→ Teleprompter na tablecie lub starym telefonie
+→ Nagrywanie na głównym urządzeniu
+→ Stojak/uchwyt do pozycjonowania
+
+✅ Zalety:
+- Zero uprawnień
+- Większy ekran telepromptera
+- Działa z każdą aplikacją
+
+❌ Wady:
+- Wymaga drugiego urządzenia
+- Wymaga synchronizacji (lub ręcznego startu)
+```
+
+### Rekomendacja
+
+Dla maksymalnego zasięgu użytkowników rozważ **hybrydowe podejście**:
+1. **Tryb Overlay** - dla power users, którzy przejdą setup
+2. **Tryb Wbudowana Kamera** - dla casual users, zero konfiguracji
 
 ---
 
