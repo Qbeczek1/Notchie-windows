@@ -48,7 +48,7 @@ export function createEditorWindow() {
   editorWindow = new BrowserWindow({
     width: 800,
     height: 600,
-    title: 'Notchie - Edytor Skryptu',
+    title: 'ScriptView - Edytor Skryptu',
     icon: icon, // Set window icon
     webPreferences: {
       preload: preloadPath,

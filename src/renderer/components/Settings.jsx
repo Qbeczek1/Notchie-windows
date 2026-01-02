@@ -121,7 +121,7 @@ function Settings() {
   return (
     <div className="w-full h-full bg-gray-50 p-6 overflow-y-auto">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6">Ustawienia Notchie</h1>
+        <h1 className="text-2xl font-bold mb-6">Ustawienia ScriptView</h1>
 
         {/* Font Size */}
         <div className="mb-6 bg-white p-4 rounded-lg shadow">

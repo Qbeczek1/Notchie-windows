@@ -1,5 +1,5 @@
-appId: com.notchie.app
-productName: Notchie
+appId: com.scriptview.app
+productName: ScriptView
 directories:
   output: release
   buildResources: build

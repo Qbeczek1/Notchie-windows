@@ -37,9 +37,9 @@ export function createAboutWindow() {
 
   // Read package.json for app info
   let appInfo = {
-    name: 'Notchie',
+    name: 'ScriptView',
     version: '1.0.0',
-    author: 'Notchie',
+    author: 'ScriptView',
     license: 'MIT',
     description: 'Teleprompter dla Windows'
   }
@@ -63,7 +63,7 @@ export function createAboutWindow() {
   aboutWindow = new BrowserWindow({
     width: 500,
     height: 400,
-    title: 'O aplikacji - Notchie',
+    title: 'O aplikacji - ScriptView',
     icon: icon,
     resizable: false,
     webPreferences: {

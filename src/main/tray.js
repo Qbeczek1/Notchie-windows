@@ -45,7 +45,7 @@ export function createTray() {
   tray = new Tray(icon)
 
   // Set tooltip
-  tray.setToolTip('Notchie - Teleprompter')
+  tray.setToolTip('ScriptView - Teleprompter')
 
   // Create context menu
   updateTrayMenu()

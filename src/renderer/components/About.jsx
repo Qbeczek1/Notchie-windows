@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react'
 
 function About() {
   const [appInfo, setAppInfo] = useState({
-    name: 'Notchie',
+    name: 'ScriptView',
     version: '1.0.0',
-    author: 'Notchie',
+    author: 'ScriptView',
     license: 'MIT',
     description: 'Teleprompter dla Windows'
   })
@@ -60,7 +60,7 @@ function About() {
             <h2 className="text-xl font-semibold mb-4">GitHub</h2>
             <p className="text-gray-300">
               <a 
-                href="https://github.com/Qbeczek1/Notchie-windows" 
+                href="https://github.com/Qbeczek1/ScriptView" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-blue-400 hover:text-blue-300 underline"
@@ -75,7 +75,7 @@ function About() {
                   }
                 }}
               >
-                https://github.com/Qbeczek1/Notchie-windows
+                https://github.com/Qbeczek1/ScriptView
               </a>
             </p>
           </div>

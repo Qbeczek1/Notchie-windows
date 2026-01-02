@@ -71,7 +71,7 @@ export const SCREEN_SHARE_CONFIG = {
 
 // File operations
 export const FILE_CONFIG = {
-  SCRIPTS_DIR_NAME: 'Notchie',
+  SCRIPTS_DIR_NAME: 'ScriptView',
   DEFAULT_SCRIPT_NAME: 'skrypt.txt',
   SUPPORTED_EXTENSIONS: ['txt'],
   MAX_FILE_SIZE: 10 * 1024 * 1024 // 10MB

@@ -1,4 +1,4 @@
-# 🎬 Notchie - Teleprompter dla Windows
+# 🎬 ScriptView - Teleprompter dla Windows
 
 <div align="center">
 
@@ -17,7 +17,7 @@
 
 ## 📖 O Projekcie
 
-**Notchie** to aplikacja telepromptera dla Windows, która wyświetla tekst jako przezroczysty overlay na ekranie. Idealna do nagrywania video, prowadzenia video calli i prezentacji, gdzie potrzebujesz czytać skrypt patrząc jednocześnie w kamerę.
+**ScriptView** to aplikacja telepromptera dla Windows, która wyświetla tekst jako przezroczysty overlay na ekranie. Idealna do nagrywania video, prowadzenia video calli i prezentacji, gdzie potrzebujesz czytać skrypt patrząc jednocześnie w kamerę.
 
 ### ✨ Kluczowe Cechy
 
@@ -139,8 +139,8 @@
 1. **Sklonuj repozytorium**
 
    ```bash
-   git clone https://github.com/Qbeczek1/notchie-windows.git
-   cd notchie-windows
+   git clone https://github.com/Qbeczek1/ScriptView.git
+   cd scriptview
    ```
 
 2. **Zainstaluj zależności**
@@ -233,8 +233,8 @@
 
 Ustawienia aplikacji są przechowywane w:
 
-- **Windows**: `%APPDATA%\notchie-windows\config.json`
-- **Skrypty**: `%USERPROFILE%\Documents\Notchie\`
+- **Windows**: `%APPDATA%\scriptview\config.json`
+- **Skrypty**: `%USERPROFILE%\Documents\ScriptView\`
 
 ### Struktura Ustawień
 
@@ -274,7 +274,7 @@ export const DEFAULT_SETTINGS = {
 ### Struktura Projektu
 
 ```
-notchie-windows/
+scriptview/
 ├── src/
 │   ├── main/                    # Electron Main Process
 │   │   ├── index.js            # Entry point
@@ -399,7 +399,7 @@ logger.debug("Debug info");
 
 **Rozwiązanie**:
 
-- Sprawdź uprawnienia do zapisu w `%APPDATA%\notchie-windows\`
+- Sprawdź uprawnienia do zapisu w `%APPDATA%\scriptview\`
 - Sprawdź logi w konsoli
 - Sprawdź czy `electron-store` jest poprawnie zainstalowany
 
@@ -470,7 +470,7 @@ Contributions są mile widziane!
 
 ### Reporting Bugs
 
-Użyj [GitHub Issues](https://github.com/Qbeczek1/notchie-windows/issues) i podaj:
+Użyj [GitHub Issues](https://github.com/Qbeczek1/ScriptView/issues) i podaj:
 
 - Opis problemu
 - Kroki do reprodukcji
@@ -511,8 +511,8 @@ Szczegóły: [docs/DEPENDENCIES_AUDIT.md](./docs/DEPENDENCIES_AUDIT.md)
 
 ## 📞 Kontakt
 
-- **Issues**: [GitHub Issues](https://github.com/Qbeczek1/notchie-windows/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/Qbeczek1/notchie-windows/discussions)
+- **Issues**: [GitHub Issues](https://github.com/Qbeczek1/ScriptView/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/Qbeczek1/ScriptView/discussions)
 
 ---
 

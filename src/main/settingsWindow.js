@@ -41,7 +41,7 @@ export function createSettingsWindow() {
   settingsWindow = new BrowserWindow({
     width: 600,
     height: 700,
-    title: 'Notchie - Ustawienia',
+    title: 'ScriptView - Ustawienia',
     icon: icon, // Set window icon
     webPreferences: {
       preload: preloadPath,
