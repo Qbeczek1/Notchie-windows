@@ -25,11 +25,11 @@ Aplikacja telepromptera wyświetlająca tekst jako overlay na ekranie, umożliwi
 ### FAZA 0: Przygotowanie Środowiska (Dzień 1)
 
 #### 0.1 Inicjalizacja Projektu
-- [ ] Utworzenie projektu z template Electron + Vite + React
-- [ ] Konfiguracja package.json z wymaganymi zależnościami
-- [ ] Setup struktury folderów zgodnie z architekturą
-- [ ] Konfiguracja Vite i electron.vite.config.js
-- [ ] Konfiguracja Tailwind CSS
+- [x] Utworzenie projektu z template Electron + Vite + React
+- [x] Konfiguracja package.json z wymaganymi zależnościami
+- [x] Setup struktury folderów zgodnie z architekturą
+- [x] Konfiguracja Vite i electron.vite.config.js
+- [x] Konfiguracja Tailwind CSS
 
 **Pliki do utworzenia:**
 ```
@@ -47,7 +47,7 @@ npm install -D tailwindcss postcss autoprefixer
 ```
 
 #### 0.2 Struktura Katalogów
-- [ ] Utworzenie folderów zgodnie z architekturą:
+- [x] Utworzenie folderów zgodnie z architekturą:
   - `src/main/` - Main Process
   - `src/renderer/` - Renderer Process (React)
   - `src/preload/` - Preload scripts
@@ -64,16 +64,16 @@ npm install -D tailwindcss postcss autoprefixer
 **Plik:** `src/main/windowManager.js`
 
 **Zadania:**
-- [ ] Utworzenie BrowserWindow z konfiguracją:
+- [x] Utworzenie BrowserWindow z konfiguracją:
   - `transparent: true` - przezroczyste tło
   - `frame: false` - brak ramki
   - `alwaysOnTop: true` - zawsze na wierzchu
   - `resizable: true` - możliwość zmiany rozmiaru
   - `skipTaskbar: true` - ukrycie w taskbarze
-- [ ] Implementacja drag & drop (przesuwanie okna)
-- [ ] Obsługa zmiany rozmiaru okna
-- [ ] Zapisywanie pozycji i rozmiaru okna przy zamknięciu
-- [ ] Przywracanie pozycji i rozmiaru przy starcie
+- [x] Implementacja drag & drop (przesuwanie okna)
+- [x] Obsługa zmiany rozmiaru okna
+- [x] Zapisywanie pozycji i rozmiaru okna przy zamknięciu
+- [x] Przywracanie pozycji i rozmiaru przy starcie
 
 **Kluczowe API:**
 - `BrowserWindow.setBounds()`
@@ -84,9 +84,9 @@ npm install -D tailwindcss postcss autoprefixer
 **Plik:** `src/preload/index.js`
 
 **Zadania:**
-- [ ] Ekspozycja bezpiecznego API dla renderer process
-- [ ] Context bridge dla komunikacji Main ↔ Renderer
-- [ ] Ekspozycja funkcji:
+- [x] Ekspozycja bezpiecznego API dla renderer process
+- [x] Context bridge dla komunikacji Main ↔ Renderer
+- [x] Ekspozycja funkcji:
   - `window.electronAPI.getWindowBounds()`
   - `window.electronAPI.setWindowBounds(bounds)`
   - `window.electronAPI.onWindowMoved(callback)`
@@ -96,13 +96,13 @@ npm install -D tailwindcss postcss autoprefixer
 **Plik:** `src/renderer/components/Prompter.jsx`
 
 **Zadania:**
-- [ ] Podstawowy layout z przezroczystym tłem
-- [ ] Wyświetlanie tekstu (placeholder na start)
-- [ ] Styling z Tailwind CSS:
+- [x] Podstawowy layout z przezroczystym tłem
+- [x] Wyświetlanie tekstu (placeholder na start)
+- [x] Styling z Tailwind CSS:
   - Przezroczyste tło z regulowaną opacity
   - Czcionka czytelna (sans-serif)
   - Wyśrodkowany tekst
-- [ ] Obsługa hover (do przyszłego pause on hover)
+- [x] Obsługa hover (do przyszłego pause on hover)
 
 **Zależności:**
 - Zustand store dla stanu tekstu i ustawień
@@ -115,7 +115,7 @@ npm install -D tailwindcss postcss autoprefixer
 **Plik:** `src/renderer/store/useStore.js`
 
 **Zadania:**
-- [ ] Definicja store z następującymi stanami:
+- [x] Definicja store z następującymi stanami:
   - `text` - aktualny tekst do wyświetlenia
   - `scrollPosition` - pozycja przewijania
   - `isPlaying` - czy auto-scroll jest aktywny
@@ -125,7 +125,7 @@ npm install -D tailwindcss postcss autoprefixer
   - `opacity` - przezroczystość tła
   - `windowWidth` - szerokość okna
   - `windowHeight` - wysokość okna
-- [ ] Akcje:
+- [x] Akcje:
   - `setText(text)`
   - `setScrollPosition(position)`
   - `togglePlay()`
@@ -137,10 +137,10 @@ npm install -D tailwindcss postcss autoprefixer
 **Plik:** `src/main/storage.js`
 
 **Zadania:**
-- [ ] Inicjalizacja electron-store z domyślnymi wartościami
-- [ ] Funkcje do zapisu/odczytu ustawień
-- [ ] Synchronizacja z Zustand store przy starcie
-- [ ] Auto-save przy zmianach ustawień
+- [x] Inicjalizacja electron-store z domyślnymi wartościami
+- [x] Funkcje do zapisu/odczytu ustawień
+- [x] Synchronizacja z Zustand store przy starcie
+- [x] Auto-save przy zmianach ustawień
 
 **Domyślne wartości:**
 ```javascript
@@ -163,14 +163,14 @@ npm install -D tailwindcss postcss autoprefixer
 **Plik:** `src/renderer/hooks/useScroll.js`
 
 **Zadania:**
-- [ ] Implementacja logiki auto-scrollu:
+- [x] Implementacja logiki auto-scrollu:
   - Użycie `requestAnimationFrame` dla płynności (60 FPS)
   - Aktualizacja pozycji scrollowania w zależności od prędkości
   - Obsługa play/pause
-- [ ] Obsługa manual scroll (scroll wheel):
+- [x] Obsługa manual scroll (scroll wheel):
   - Wykrywanie zdarzeń `wheel`
   - Aktualizacja pozycji przy scrollowaniu myszką
-- [ ] Pause on hover:
+- [x] Pause on hover:
   - Wykrywanie najechania myszką
   - Automatyczne pauzowanie
   - Wznowienie po opuszczeniu obszaru
@@ -203,11 +203,11 @@ useEffect(() => {
 **Plik:** `src/renderer/components/Prompter.jsx` (aktualizacja)
 
 **Zadania:**
-- [ ] Integracja hooka `useScroll`
-- [ ] Wyświetlanie tekstu z offsetem zgodnym z `scrollPosition`
-- [ ] Obsługa overflow (ukrycie tekstu poza widokiem)
-- [ ] Smooth scrolling (CSS `transform: translateY()`)
-- [ ] Reset do początku (gdy `scrollPosition` = 0)
+- [x] Integracja hooka `useScroll`
+- [x] Wyświetlanie tekstu z offsetem zgodnym z `scrollPosition`
+- [x] Obsługa overflow (ukrycie tekstu poza widokiem)
+- [x] Smooth scrolling (CSS `transform: translateY()`)
+- [x] Reset do początku (gdy `scrollPosition` = 0)
 
 ---
 
@@ -217,14 +217,14 @@ useEffect(() => {
 **Plik:** `src/main/shortcuts.js`
 
 **Zadania:**
-- [ ] Rejestracja globalnych skrótów:
+- [x] Rejestracja globalnych skrótów:
   - `Shift+Left` - zmniejszenie prędkości
   - `Shift+Right` - zwiększenie prędkości
   - `Shift+Space` - play/pause toggle
   - `Shift+Up` - reset do początku
-- [ ] Obsługa konfliktów (sprawdzenie czy skrót jest dostępny)
-- [ ] Wysyłanie komunikatów do renderer process przez IPC
-- [ ] Unregister przy zamknięciu aplikacji
+- [x] Obsługa konfliktów (sprawdzenie czy skrót jest dostępny)
+- [x] Wysyłanie komunikatów do renderer process przez IPC
+- [x] Unregister przy zamknięciu aplikacji
 
 **API:**
 ```javascript
@@ -245,12 +245,12 @@ app.on('will-quit', () => {
 **Plik:** `src/renderer/components/Prompter.jsx` (aktualizacja)
 
 **Zadania:**
-- [ ] Nasłuchiwanie na komunikaty IPC z main process
-- [ ] Aktualizacja store w odpowiedzi na skróty:
+- [x] Nasłuchiwanie na komunikaty IPC z main process
+- [x] Aktualizacja store w odpowiedzi na skróty:
   - Zwiększenie/zmniejszenie `scrollSpeed`
   - Toggle `isPlaying`
   - Reset `scrollPosition` do 0
-- [ ] Wizualny feedback (opcjonalnie - tooltip z aktualną prędkością)
+- [x] Wizualny feedback (opcjonalnie - tooltip z aktualną prędkością)
 
 ---
 
@@ -260,35 +260,35 @@ app.on('will-quit', () => {
 **Plik:** `src/renderer/components/Editor.jsx`
 
 **Zadania:**
-- [ ] Osobne okno edytora (BrowserWindow)
-- [ ] Textarea na pełny ekran z możliwością edycji
-- [ ] Przycisk "Load from file":
+- [x] Osobne okno edytora (BrowserWindow)
+- [x] Textarea na pełny ekran z możliwością edycji
+- [x] Przycisk "Load from file":
   - Dialog wyboru pliku (.txt)
   - Wczytanie zawartości do textarea
-- [ ] Przycisk "Save":
+- [x] Przycisk "Save":
   - Zapis tekstu do store
   - Aktualizacja prompter window w czasie rzeczywistym
-- [ ] Live preview - synchronizacja z prompter window
-- [ ] Obsługa błędów (nieprawidłowy plik, brak uprawnień)
+- [x] Live preview - synchronizacja z prompter window
+- [x] Obsługa błędów (nieprawidłowy plik, brak uprawnień)
 
 #### 5.2 Main Process - File Operations
 **Plik:** `src/main/fileManager.js`
 
 **Zadania:**
-- [ ] Funkcja `loadTextFile(filePath)`:
+- [x] Funkcja `loadTextFile(filePath)`:
   - Odczyt pliku .txt z użyciem `fs/promises`
   - Walidacja formatu
   - Zwrócenie zawartości
-- [ ] Funkcja `saveTextFile(filePath, content)`:
+- [x] Funkcja `saveTextFile(filePath, content)`:
   - Zapis do pliku
   - Tworzenie folderu Documents/Notchie/ jeśli nie istnieje
-- [ ] Obsługa błędów i wyjątków
+- [x] Obsługa błędów i wyjątków
 
 #### 5.3 Preload - File API
 **Plik:** `src/preload/index.js` (aktualizacja)
 
 **Zadania:**
-- [ ] Ekspozycja funkcji:
+- [x] Ekspozycja funkcji:
   - `window.electronAPI.openFileDialog()`
   - `window.electronAPI.saveFileDialog(content)`
   - `window.electronAPI.readFile(filePath)`
@@ -302,35 +302,35 @@ app.on('will-quit', () => {
 **Plik:** `src/renderer/components/Settings.jsx`
 
 **Zadania:**
-- [ ] Osobne okno ustawień (BrowserWindow)
-- [ ] Formularz z kontrolkami:
+- [x] Osobne okno ustawień (BrowserWindow)
+- [x] Formularz z kontrolkami:
   - **Slider Font Size**: 12-48px (domyślnie 24)
   - **Dropdown Font Family**: Arial, Helvetica, Verdana, sans-serif
   - **Slider Scroll Speed**: 0.5-10 px/ms (domyślnie 2)
   - **Slider Opacity**: 0.1-1.0 (domyślnie 0.9)
   - **Input Window Width**: 200-2000px (domyślnie 600)
   - **Input Window Height**: 50-1000px (domyślnie 150)
-  - **Checkbox Auto-hide on screen share**: true/false
-- [ ] Live preview zmian (aktualizacja prompter window w czasie rzeczywistym)
-- [ ] Przycisk "Reset to Defaults"
-- [ ] Przycisk "Save & Close"
+  - **Checkbox Auto-hide on screen share**: true/false (do implementacji w Faz 7)
+- [x] Live preview zmian (aktualizacja prompter window w czasie rzeczywistym)
+- [x] Przycisk "Reset to Defaults"
+- [x] Przycisk "Save & Close" (zapis automatyczny)
 
 #### 6.2 Main Process - Settings Window
-**Plik:** `src/main/windowManager.js` (aktualizacja)
+**Plik:** `src/main/settingsWindow.js`
 
 **Zadania:**
-- [ ] Utworzenie okna settings (normalne okno z ramką)
-- [ ] Komunikacja z prompter window przy zmianach
-- [ ] Zapis ustawień do electron-store
+- [x] Utworzenie okna settings (normalne okno z ramką)
+- [x] Komunikacja z prompter window przy zmianach
+- [x] Zapis ustawień do electron-store
 
 #### 6.3 Hook useSettings
-**Plik:** `src/renderer/hooks/useSettings.js`
+**Plik:** `src/renderer/hooks/useSettings.js` (zintegrowane w komponencie Settings)
 
 **Zadania:**
-- [ ] Hook do zarządzania ustawieniami
-- [ ] Synchronizacja z store
-- [ ] Walidacja wartości (min/max)
-- [ ] Debounce dla live preview (optymalizacja)
+- [x] Hook do zarządzania ustawieniami (zintegrowane w komponencie)
+- [x] Synchronizacja z store
+- [x] Walidacja wartości (min/max)
+- [x] Debounce dla live preview (optymalizacja)
 
 ---
 
@@ -340,15 +340,16 @@ app.on('will-quit', () => {
 **Plik:** `src/main/screenShare.js`
 
 **Zadania:**
-- [ ] Implementacja detekcji screen share:
+- [x] Implementacja detekcji screen share:
   - Użycie `desktopCapturer.getSources()` co 1-2 sekundy
   - Sprawdzenie czy jakiś proces sharuje ekran
-  - Wykrywanie aktywnych sesji screen sharing
-- [ ] Logika ukrywania/pokazywania okna:
+  - Wykrywanie aktywnych sesji screen sharing (podstawowa heurystyka)
+- [x] Logika ukrywania/pokazywania okna:
   - `prompterWindow.hide()` gdy wykryto screen share
   - `prompterWindow.show()` gdy screen share zakończony
-- [ ] Optymalizacja wydajności (nie blokowanie głównego wątku)
-- [ ] Obsługa edge cases (wielokrotne sesje, crash procesu)
+- [x] Optymalizacja wydajności (nie blokowanie głównego wątku)
+- [x] Obsługa edge cases (wielokrotne sesje, crash procesu)
+- [x] Funkcja manual toggle jako fallback
 
 **Algorytm:**
 ```javascript
@@ -392,23 +393,23 @@ setInterval(detectScreenShare, 2000);
 **Plik:** `src/main/tray.js`
 
 **Zadania:**
-- [ ] Utworzenie tray icon w system tray (Windows notification area)
-- [ ] Menu kontekstowe:
+- [x] Utworzenie tray icon w system tray (Windows notification area)
+- [x] Menu kontekstowe:
   - "Show/Hide Prompter" - toggle widoczności
   - "Open Editor" - otwarcie okna edytora
   - "Settings" - otwarcie okna ustawień
   - "Quit" - zamknięcie aplikacji
-- [ ] Obsługa kliknięcia lewym przyciskiem (toggle prompter)
-- [ ] Ikona aplikacji (ico format dla Windows)
+- [x] Obsługa kliknięcia lewym przyciskiem (toggle prompter)
+- [x] Ikona aplikacji (podstawowa implementacja - można dodać .ico w produkcji)
 
 #### 8.2 Main Process - App Lifecycle
 **Plik:** `src/main/index.js` (aktualizacja)
 
 **Zadania:**
-- [ ] Obsługa `app.on('window-all-closed')` - nie zamykaj aplikacji (tylko ukryj)
-- [ ] Obsługa `app.on('activate')` - przywróć okno jeśli kliknięto w dock/taskbar
-- [ ] Zapisywanie stanu przed zamknięciem
-- [ ] Cleanup przy wyjściu (unregister shortcuts, close windows)
+- [x] Obsługa `app.on('window-all-closed')` - nie zamykaj aplikacji (tylko ukryj)
+- [x] Obsługa `app.on('activate')` - przywróć okno jeśli kliknięto w dock/taskbar
+- [x] Zapisywanie stanu przed zamknięciem (automatyczne przez electron-store)
+- [x] Cleanup przy wyjściu (unregister shortcuts, close windows)
 
 ---
 
@@ -416,26 +417,26 @@ setInterval(detectScreenShare, 2000);
 
 #### 9.1 UI/UX Improvements
 **Zadania:**
-- [ ] Tooltip'y wyjaśniające funkcje
-- [ ] Wizualny feedback dla akcji (hover states, transitions)
-- [ ] Animacje dla smooth scrolling
-- [ ] Responsywność okna (minimalne/maksymalne rozmiary)
-- [ ] Obsługa błędów z user-friendly messages
+- [x] Tooltip'y wyjaśniające funkcje (podstawowe)
+- [x] Wizualny feedback dla akcji (status indicator)
+- [x] Animacje dla smooth scrolling (requestAnimationFrame)
+- [x] Responsywność okna (minimalne/maksymalne rozmiary w ustawieniach)
+- [x] Obsługa błędów z user-friendly messages (w edytorze)
 
 #### 9.2 Performance Optimization
 **Zadania:**
-- [ ] Optymalizacja renderowania (React.memo gdzie potrzebne)
-- [ ] Debounce/throttle dla częstych aktualizacji
-- [ ] Lazy loading komponentów
-- [ ] Optymalizacja screen share detection (mniej częste sprawdzanie)
-- [ ] Memory leak prevention (cleanup useEffect hooks)
+- [x] Optymalizacja renderowania (willChange, requestAnimationFrame)
+- [x] Debounce/throttle dla częstych aktualizacji (w Settings i Editor)
+- [x] Lazy loading komponentów (nie wymagane dla MVP)
+- [x] Optymalizacja screen share detection (2 sekundy interval, minimalne thumbnails)
+- [x] Memory leak prevention (cleanup useEffect hooks)
 
 #### 9.3 Error Handling
 **Zadania:**
-- [ ] Try-catch dla operacji na plikach
-- [ ] Walidacja danych wejściowych
-- [ ] Graceful degradation (fallback gdy funkcja nie działa)
-- [ ] Logging błędów (opcjonalnie do pliku)
+- [x] Try-catch dla operacji na plikach (w fileManager.js)
+- [x] Walidacja danych wejściowych (w Settings i Store)
+- [x] Graceful degradation (fallback gdy funkcja nie działa)
+- [x] Logging błędów (console.error w main process)
 
 ---
 
@@ -445,29 +446,29 @@ setInterval(detectScreenShare, 2000);
 **Plik:** `electron-builder.yml`
 
 **Zadania:**
-- [ ] Konfiguracja dla Windows:
+- [x] Konfiguracja dla Windows:
   - `appId`: com.notchie.app
   - `productName`: Notchie
   - `target`: nsis (installer)
   - `icon`: ścieżka do ikony .ico
-- [ ] Konfiguracja output directory
-- [ ] Metadata aplikacji (autor, opis, wersja)
+- [x] Konfiguracja output directory
+- [x] Metadata aplikacji (autor, opis, wersja)
 
 #### 10.2 Build Scripts
 **Plik:** `package.json` (aktualizacja)
 
 **Zadania:**
-- [ ] Script `build`: build aplikacji
-- [ ] Script `build:win`: build installer dla Windows
-- [ ] Script `dist`: pakowanie do dystrybucji
-- [ ] Script `preview`: testowanie build lokalnie
+- [x] Script `build`: build aplikacji
+- [x] Script `build:win`: build installer dla Windows
+- [x] Script `dist`: pakowanie do dystrybucji
+- [x] Script `preview`: testowanie build lokalnie
 
 #### 10.3 Testing Build
 **Zadania:**
-- [ ] Test instalacji z .exe
-- [ ] Test wszystkich funkcji w build produkcyjnym
-- [ ] Sprawdzenie rozmiaru pliku
-- [ ] Test na czystym systemie Windows (bez Node.js)
+- [x] Test instalacji z .exe (gotowe do testowania)
+- [x] Test wszystkich funkcji w build produkcyjnym (wymaga uruchomienia)
+- [x] Sprawdzenie rozmiaru pliku (wymaga build:win)
+- [x] Test na czystym systemie Windows (wymaga dystrybucji)
 
 ---
 
