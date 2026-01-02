@@ -1,0 +1,15 @@
+appId: com.notchie.app
+productName: Notchie
+directories:
+  output: release
+  buildResources: build
+files:
+  - 'out/**/*'
+win:
+  target: nsis
+  icon: public/icon.ico
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
