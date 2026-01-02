@@ -442,10 +442,12 @@ npm run build
 
 ### v2.0 (Długoterminowe)
 
-- [ ] Mobile app (iOS/Android)
+- [ ] **📱 Android app z overlay** - Teleprompter wyświetlany nad Instagram/TikTok podczas nagrywania
 - [ ] AI script generator
 - [ ] Collaboration features
 - [ ] Theme system (Dark/Light)
+
+> 📱 **Android Overlay:** Planujemy wersję na Androida z funkcją overlay - tekst telepromptera będzie widoczny nad innymi aplikacjami (Instagram, TikTok, Camera), ale NIE będzie nagrywany przez kamerę. Szczegóły: [docs/ANDROID_VERSION.md](./docs/ANDROID_VERSION.md)
 
 ---
 
