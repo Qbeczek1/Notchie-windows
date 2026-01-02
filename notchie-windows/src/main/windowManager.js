@@ -2,6 +2,7 @@ import { BrowserWindow, ipcMain } from 'electron'
 import Store from 'electron-store'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import { existsSync } from 'fs'
 import { getSettings, saveSettings, saveText, getText } from './storage.js'
 import { IPC_CHANNELS } from './constants.js'
 import { createLogger } from './utils/logger.js'
@@ -33,6 +34,27 @@ export function createPrompterWindow() {
     y: windowStore.get('windowY')
   }
 
+  // Preload path - check both .js and .mjs (electron-vite may output either)
+  const preloadJsPath = path.resolve(__dirname, '../preload/index.js')
+  const preloadMjsPath = path.resolve(__dirname, '../preload/index.mjs')
+  
+  let preloadPath
+  if (existsSync(preloadJsPath)) {
+    preloadPath = preloadJsPath
+    logger.debug('Using .js preload file')
+  } else if (existsSync(preloadMjsPath)) {
+    preloadPath = preloadMjsPath
+    logger.debug('Using .mjs preload file')
+  } else {
+    logger.error('Preload file not found!')
+    logger.error('Checked:', preloadJsPath)
+    logger.error('Checked:', preloadMjsPath)
+    logger.error('__dirname:', __dirname)
+    throw new Error(`Preload file not found. Checked: ${preloadJsPath} and ${preloadMjsPath}`)
+  }
+  
+  logger.debug('Using preload path:', preloadPath)
+
   prompterWindow = new BrowserWindow({
     width: savedBounds.width,
     height: savedBounds.height,
@@ -43,8 +65,9 @@ export function createPrompterWindow() {
     alwaysOnTop: true,
     resizable: true,
     skipTaskbar: true,
+    show: true, // Ensure window is visible by default
     webPreferences: {
-      preload: path.join(__dirname, '../preload/index.js'),
+      preload: preloadPath,
       nodeIntegration: false,
       contextIsolation: true
     }
@@ -56,6 +79,11 @@ export function createPrompterWindow() {
   } else {
     prompterWindow.loadFile(path.join(__dirname, '../renderer/index.html'))
   }
+
+  // Ensure window is visible after load
+  prompterWindow.once('ready-to-show', () => {
+    prompterWindow.show()
+  })
 
   // Enable dragging - ignore mouse events but forward them
   prompterWindow.setIgnoreMouseEvents(false, { forward: true })
@@ -156,6 +184,18 @@ ipcMain.handle(IPC_CHANNELS.SAVE_SETTINGS, withErrorHandlingSync((event, setting
   if (settings) {
     saveSettings(settings)
     logger.debug('Settings saved')
+    
+    // Send updated settings to prompter window
+    if (prompterWindow && !prompterWindow.isDestroyed()) {
+      const updatedSettings = getSettings()
+      prompterWindow.webContents.send(IPC_CHANNELS.LOAD_SETTINGS, updatedSettings)
+      logger.debug('Settings sent to prompter window')
+    }
+    
+    // Also emit SETTINGS_UPDATED for window size updates
+    if (settings.windowWidth || settings.windowHeight) {
+      ipcMain.emit(IPC_CHANNELS.SETTINGS_UPDATED, event, settings)
+    }
   }
 }))
 
@@ -171,9 +211,11 @@ ipcMain.handle(IPC_CHANNELS.GET_TEXT, withErrorHandlingSync(() => {
 }))
 
 // IPC handlers for file operations
-ipcMain.handle(IPC_CHANNELS.OPEN_FILE_DIALOG, withErrorHandling(async () => {
+ipcMain.handle(IPC_CHANNELS.OPEN_FILE_DIALOG, withErrorHandling(async (event) => {
   logger.info('Opening file dialog')
-  return await openFileDialog()
+  // Get the window that sent the IPC message
+  const window = BrowserWindow.fromWebContents(event.sender)
+  return await openFileDialog(window)
 }))
 
 ipcMain.handle(IPC_CHANNELS.SAVE_FILE_DIALOG, withErrorHandling(async (event, content) => {
@@ -181,5 +223,7 @@ ipcMain.handle(IPC_CHANNELS.SAVE_FILE_DIALOG, withErrorHandling(async (event, co
     throw new Error('Content must be a string')
   }
   logger.info('Saving file dialog')
-  return await saveFileDialog(content)
+  // Get the window that sent the IPC message
+  const window = BrowserWindow.fromWebContents(event.sender)
+  return await saveFileDialog(content, window)
 }))

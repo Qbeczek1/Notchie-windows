@@ -61,6 +61,7 @@ const safeOn = (channel, callback) => {
 
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
+console.log('[Preload] Exposing electronAPI to renderer')
 contextBridge.exposeInMainWorld('electronAPI', {
   // Window management
   getWindowBounds: () => safeInvoke(IPC_CHANNELS.GET_WINDOW_BOUNDS),
@@ -108,3 +109,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
     }
   }
 })
+
+console.log('[Preload] electronAPI exposed successfully')

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "description": "Teleprompter dla Windows - overlay wyświetlający tekst podczas nagrywania video",
-  "main": "dist-electron/main/index.js",
+  "main": "out/main/index.js",
   "author": "Notchie",
   "license": "MIT",
   "scripts": {

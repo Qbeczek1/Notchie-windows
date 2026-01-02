@@ -5,6 +5,38 @@ function Editor() {
   const { text, setText } = useStore()
   const [localText, setLocalText] = useState(text)
   const [isSaving, setIsSaving] = useState(false)
+  const [apiReady, setApiReady] = useState(false)
+
+  // Wait for electronAPI to be available
+  useEffect(() => {
+    const checkAPI = () => {
+      if (window.electronAPI) {
+        console.log('electronAPI is available')
+        setApiReady(true)
+        return true
+      }
+      return false
+    }
+
+    if (checkAPI()) {
+      return
+    }
+
+    // Retry a few times if API is not ready
+    let retries = 0
+    const maxRetries = 10
+    const interval = setInterval(() => {
+      if (checkAPI() || retries >= maxRetries) {
+        clearInterval(interval)
+        if (!window.electronAPI) {
+          console.error('electronAPI not available after retries')
+        }
+      }
+      retries++
+    }, 100)
+
+    return () => clearInterval(interval)
+  }, [])
 
   // Sync with store
   useEffect(() => {
@@ -37,23 +69,48 @@ function Editor() {
   }, [setText])
 
   const handleLoadFile = async () => {
-    if (!window.electronAPI) return
+    if (!apiReady || !window.electronAPI) {
+      console.error('electronAPI not available', { apiReady, electronAPI: !!window.electronAPI })
+      alert('Błąd: Brak dostępu do API aplikacji. Spróbuj ponownie za chwilę.')
+      return
+    }
 
     try {
+      console.log('Opening file dialog...')
       const result = await window.electronAPI.openFileDialog()
+      console.log('File dialog result:', result)
+      
       if (result && result.content) {
-        setLocalText(result.content)
-        setText(result.content)
+        const loadedText = result.content
+        setLocalText(loadedText)
+        setText(loadedText)
+        // Immediately send to prompter window
+        if (window.electronAPI && window.electronAPI.updatePrompterText) {
+          window.electronAPI.updatePrompterText(loadedText).catch((error) => {
+            console.error('Error updating prompter text:', error)
+          })
+        }
+        console.log('File loaded successfully')
       } else if (result && result.error) {
-        alert(`Błąd podczas wczytywania pliku: ${result.error}`)
+        alert(`Błąd podczas wczytywania pliku: ${result.message || result.error}`)
+      } else if (result === null) {
+        // User canceled - no action needed
+        console.log('File dialog canceled by user')
+      } else {
+        console.warn('Unexpected result:', result)
       }
     } catch (error) {
+      console.error('Error loading file:', error)
       alert(`Błąd podczas wczytywania pliku: ${error.message}`)
     }
   }
 
   const handleSaveFile = async () => {
-    if (!window.electronAPI) return
+    if (!apiReady || !window.electronAPI) {
+      console.error('electronAPI not available', { apiReady, electronAPI: !!window.electronAPI })
+      alert('Błąd: Brak dostępu do API aplikacji. Spróbuj ponownie za chwilę.')
+      return
+    }
 
     setIsSaving(true)
     try {

@@ -43,10 +43,8 @@ app.whenReady().then(() => {
       logger.error('Render process crashed:', details)
     })
     
-    // Open DevTools in development
-    if (process.env.NODE_ENV === 'development') {
-      prompterWindow.webContents.openDevTools()
-    }
+    // DevTools can be opened manually with F12 or Ctrl+Shift+I
+    // Removed auto-open for better UX
 
     app.on('activate', () => {
       if (!getPrompterWindow()) {

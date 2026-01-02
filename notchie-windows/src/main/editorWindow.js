@@ -1,25 +1,52 @@
 import { BrowserWindow, ipcMain } from 'electron'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import { existsSync } from 'fs'
 import { getPrompterWindow } from './windowManager.js'
+import { createLogger } from './utils/logger.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
+const logger = createLogger('EditorWindow')
 
 let editorWindow = null
 
 export function createEditorWindow() {
+  logger.info('Creating editor window...')
+  
   if (editorWindow) {
+    logger.debug('Editor window already exists, focusing')
     editorWindow.focus()
     return editorWindow
   }
+
+  // Preload path - check both .js and .mjs (electron-vite may output either)
+  const preloadJsPath = path.resolve(__dirname, '../preload/index.js')
+  const preloadMjsPath = path.resolve(__dirname, '../preload/index.mjs')
+  
+  let preloadPath
+  if (existsSync(preloadJsPath)) {
+    preloadPath = preloadJsPath
+    logger.debug('Using .js preload file')
+  } else if (existsSync(preloadMjsPath)) {
+    preloadPath = preloadMjsPath
+    logger.debug('Using .mjs preload file')
+  } else {
+    logger.error('Preload file not found!')
+    logger.error('Checked:', preloadJsPath)
+    logger.error('Checked:', preloadMjsPath)
+    logger.error('__dirname:', __dirname)
+    throw new Error(`Preload file not found. Checked: ${preloadJsPath} and ${preloadMjsPath}`)
+  }
+  
+  logger.info('Using preload path:', preloadPath)
 
   editorWindow = new BrowserWindow({
     width: 800,
     height: 600,
     title: 'Notchie - Edytor Skryptu',
     webPreferences: {
-      preload: path.join(__dirname, '../preload/index.js'),
+      preload: preloadPath,
       nodeIntegration: false,
       contextIsolation: true
     }
@@ -29,17 +56,19 @@ export function createEditorWindow() {
   if (process.env.ELECTRON_RENDERER_URL) {
     editorWindow.loadURL(`${process.env.ELECTRON_RENDERER_URL}#/editor`)
   } else {
-    editorWindow.loadFile(path.join(__dirname, '../renderer/index.html'), { hash: 'editor' })
+    const htmlPath = path.join(__dirname, '../renderer/index.html')
+    editorWindow.loadFile(htmlPath).then(() => {
+      // Set hash after load
+      editorWindow.webContents.executeJavaScript(`window.location.hash = '#/editor'`)
+    })
   }
 
   editorWindow.on('closed', () => {
     editorWindow = null
   })
 
-  // Open DevTools in development
-  if (process.env.NODE_ENV === 'development') {
-    editorWindow.webContents.openDevTools()
-  }
+  // DevTools can be opened manually with F12 or Ctrl+Shift+I
+  // Removed auto-open for better UX
 
   // Listen for text updates from editor and forward to prompter
   editorWindow.webContents.on('did-finish-load', () => {

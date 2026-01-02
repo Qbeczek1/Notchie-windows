@@ -1,5 +1,5 @@
-import { dialog } from 'electron'
-import { readFile, writeFile, mkdir } from 'fs/promises'
+import { dialog, BrowserWindow } from 'electron'
+import { readFile, writeFile, mkdir, stat } from 'fs/promises'
 import { join } from 'path'
 import { homedir } from 'os'
 import { existsSync } from 'fs'
@@ -18,9 +18,14 @@ async function ensureScriptsDir() {
   }
 }
 
-export async function openFileDialog() {
+export async function openFileDialog(parentWindow = null) {
   try {
-    const result = await dialog.showOpenDialog({
+    logger.info('Opening file dialog', { hasParentWindow: !!parentWindow })
+    
+    // Get focused window if no parent provided
+    const window = parentWindow || BrowserWindow.getFocusedWindow()
+    
+    const result = await dialog.showOpenDialog(window, {
       title: 'Otwórz plik tekstowy',
       filters: [
         { name: 'Pliki tekstowe', extensions: FILE_CONFIG.SUPPORTED_EXTENSIONS },
@@ -37,7 +42,7 @@ export async function openFileDialog() {
     const filePath = result.filePaths[0]
     
     // Check file size before reading
-    const stats = await import('fs/promises').then(fs => fs.stat(filePath))
+    const stats = await stat(filePath)
     if (stats.size > FILE_CONFIG.MAX_FILE_SIZE) {
       throw new Error(`Plik jest zbyt duży. Maksymalny rozmiar: ${FILE_CONFIG.MAX_FILE_SIZE / 1024 / 1024}MB`)
     }
@@ -53,7 +58,7 @@ export async function openFileDialog() {
   }
 }
 
-export async function saveFileDialog(content) {
+export async function saveFileDialog(content, parentWindow = null) {
   if (typeof content !== 'string') {
     throw new Error('Content must be a string')
   }
@@ -61,7 +66,10 @@ export async function saveFileDialog(content) {
   try {
     const validatedContent = validateText(content)
     
-    const result = await dialog.showSaveDialog({
+    // Get focused window if no parent provided
+    const window = parentWindow || BrowserWindow.getFocusedWindow()
+    
+    const result = await dialog.showSaveDialog(window, {
       title: 'Zapisz skrypt',
       defaultPath: join(SCRIPTS_DIR, FILE_CONFIG.DEFAULT_SCRIPT_NAME),
       filters: [

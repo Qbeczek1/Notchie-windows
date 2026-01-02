@@ -7,7 +7,7 @@ const useStore = create((set, get) => ({
   // Scroll state
   scrollPosition: 0,
   isPlaying: false,
-  scrollSpeed: 2, // px per frame (60 FPS)
+  scrollSpeed: 1, // px per frame (60 FPS)
   
   // Display settings
   fontSize: 24,
@@ -21,11 +21,17 @@ const useStore = create((set, get) => ({
   // Actions
   setText: (text) => set({ text, scrollPosition: 0 }), // Reset scroll when text changes
   
-  setScrollPosition: (position) => set({ scrollPosition: Math.max(0, position) }),
+  setScrollPosition: (position) => {
+    if (typeof position === 'function') {
+      set((state) => ({ scrollPosition: Math.max(0, position(state.scrollPosition)) }))
+    } else {
+      set({ scrollPosition: Math.max(0, position) })
+    }
+  },
   
   togglePlay: () => set((state) => ({ isPlaying: !state.isPlaying })),
   
-  setScrollSpeed: (speed) => set({ scrollSpeed: Math.max(0.1, Math.min(10, speed)) }),
+  setScrollSpeed: (speed) => set({ scrollSpeed: Math.max(0.2, Math.min(1.8, speed)) }),
   
   resetScroll: () => set({ scrollPosition: 0 }),
   

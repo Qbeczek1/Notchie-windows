@@ -69,7 +69,7 @@ function Settings() {
     const defaults = {
       fontSize: 24,
       fontFamily: 'Arial, sans-serif',
-      scrollSpeed: 2,
+      scrollSpeed: 1,
       opacity: 0.9,
       windowWidth: 600,
       windowHeight: 150
@@ -82,7 +82,8 @@ function Settings() {
   }
 
   const handleChange = (key, value) => {
-    setLocalSettings(prev => ({ ...prev, [key]: value }))
+    const updatedSettings = { ...localSettings, [key]: value }
+    setLocalSettings(updatedSettings)
     
     // Update store immediately for live preview
     switch (key) {
@@ -106,6 +107,14 @@ function Settings() {
         break
       default:
         break
+    }
+    
+    // Immediately save and send to prompter (don't wait for debounce)
+    updateSettings(updatedSettings)
+    if (window.electronAPI) {
+      window.electronAPI.saveSettings(updatedSettings).catch((error) => {
+        console.error('Error saving settings:', error)
+      })
     }
   }
 
@@ -154,8 +163,8 @@ function Settings() {
           </label>
           <input
             type="range"
-            min="0.5"
-            max="10"
+            min="0.2"
+            max="1.8"
             step="0.1"
             value={localSettings.scrollSpeed}
             onChange={(e) => handleChange('scrollSpeed', parseFloat(e.target.value))}

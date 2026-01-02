@@ -42,7 +42,7 @@ export const IPC_CHANNELS = {
 export const DEFAULT_SETTINGS = {
   fontSize: 24,
   fontFamily: 'Arial, sans-serif',
-  scrollSpeed: 2,
+  scrollSpeed: 1,
   opacity: 0.9,
   windowWidth: 600,
   windowHeight: 150
@@ -56,8 +56,8 @@ export const WINDOW_CONSTRAINTS = {
   MAX_HEIGHT: 1000,
   MIN_FONT_SIZE: 12,
   MAX_FONT_SIZE: 48,
-  MIN_SCROLL_SPEED: 0.1,
-  MAX_SCROLL_SPEED: 10,
+  MIN_SCROLL_SPEED: 0.2,
+  MAX_SCROLL_SPEED: 1.8,
   MIN_OPACITY: 0.1,
   MAX_OPACITY: 1.0
 }

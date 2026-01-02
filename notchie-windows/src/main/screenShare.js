@@ -7,6 +7,7 @@ const logger = createLogger('ScreenShare')
 
 let detectionInterval = null
 let wasSharing = false
+let isInitialized = false // Track if detection has been initialized
 
 /**
  * Detect if screen sharing is active
@@ -37,7 +38,20 @@ async function detectScreenShare() {
     // This is not perfect but works for common cases
     const isSharing = screenSources.length > 0
 
-    // Only toggle if state changed
+    // On first run, initialize state without hiding window
+    if (!isInitialized) {
+      wasSharing = isSharing
+      isInitialized = true
+      logger.debug(`Screen share detection initialized. Initial state: ${isSharing ? 'sharing' : 'not sharing'}`)
+      // Ensure window is visible on startup
+      if (!prompterWindow.isVisible()) {
+        prompterWindow.show()
+        logger.debug('Ensuring prompter window is visible on startup')
+      }
+      return
+    }
+
+    // Only toggle if state changed (after initialization)
     if (isSharing !== wasSharing) {
       wasSharing = isSharing
       
@@ -67,13 +81,17 @@ export function startScreenShareDetection(intervalMs = SCREEN_SHARE_CONFIG.DETEC
   }
 
   try {
-    // Initial detection
-    detectScreenShare()
-
+    // Don't run initial detection immediately - wait for first interval
+    // This ensures the window is visible by default on startup
     // Set up interval
     detectionInterval = setInterval(() => {
       detectScreenShare()
     }, intervalMs)
+    
+    // Run first detection after a short delay to allow window to show
+    setTimeout(() => {
+      detectScreenShare()
+    }, 1000)
     
     logger.info(`Screen share detection started (interval: ${intervalMs}ms)`)
   } catch (error) {
@@ -89,6 +107,7 @@ export function stopScreenShareDetection() {
     clearInterval(detectionInterval)
     detectionInterval = null
     wasSharing = false
+    isInitialized = false // Reset initialization state
     logger.info('Screen share detection stopped')
   }
 }

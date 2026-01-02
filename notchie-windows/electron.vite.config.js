@@ -9,7 +9,15 @@ export default defineConfig({
     plugins: [externalizeDepsPlugin()]
   },
   preload: {
-    plugins: [externalizeDepsPlugin()]
+    plugins: [externalizeDepsPlugin()],
+    build: {
+      rollupOptions: {
+        output: {
+          entryFileNames: 'index.js',
+          format: 'cjs'
+        }
+      }
+    }
   },
   renderer: {
     plugins: [react()],
