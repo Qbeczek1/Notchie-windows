@@ -25,7 +25,8 @@ const IPC_CHANNELS = {
   SHORTCUT_SPEED_INCREASE: 'shortcut-speed-increase',
   SHORTCUT_SPEED_DECREASE: 'shortcut-speed-decrease',
   SHORTCUT_TOGGLE_PLAY: 'shortcut-toggle-play',
-  SHORTCUT_RESET: 'shortcut-reset'
+  SHORTCUT_RESET: 'shortcut-reset',
+  START_RESIZE: 'start-resize'
 }
 
 // Safe wrapper for IPC invoke with error handling
@@ -86,6 +87,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   openSettings: () => safeInvoke(IPC_CHANNELS.OPEN_SETTINGS),
   openAbout: () => safeInvoke(IPC_CHANNELS.OPEN_ABOUT),
   togglePrompterVisibility: () => safeInvoke(IPC_CHANNELS.TOGGLE_PROMPTER_VISIBILITY),
+  
+  // Window resize (for frameless transparent windows in Electron 30+)
+  startResize: (direction) => ipcRenderer.send(IPC_CHANNELS.START_RESIZE, direction),
+  resizeMove: () => ipcRenderer.send('resize-move'),
+  resizeEnd: () => ipcRenderer.send('resize-end'),
   
   // App info
   onAppInfo: (callback) => safeOn('app-info', callback),

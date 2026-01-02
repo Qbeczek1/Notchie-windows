@@ -4,6 +4,59 @@ import { useScroll } from '../hooks/useScroll'
 import { Edit, Settings, Info, Play, Pause } from 'lucide-react'
 
 /**
+ * ResizeHandle Component - Invisible resize zones for frameless transparent windows
+ * Required for Electron 30+ where native resize doesn't work with transparent windows
+ */
+function ResizeHandle({ position }) {
+  const handleMouseDown = useCallback((e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    if (!window.electronAPI?.startResize) return
+    
+    window.electronAPI.startResize(position)
+    
+    // Track mouse movement globally
+    const handleMouseMove = () => {
+      window.electronAPI?.resizeMove?.()
+    }
+    
+    const handleMouseUp = () => {
+      window.electronAPI?.resizeEnd?.()
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+    }
+    
+    document.addEventListener('mousemove', handleMouseMove)
+    document.addEventListener('mouseup', handleMouseUp)
+  }, [position])
+
+  // Position styles for each edge/corner
+  const positionStyles = {
+    top: { top: 0, left: 8, right: 8, height: 6, cursor: 'ns-resize' },
+    bottom: { bottom: 0, left: 8, right: 8, height: 6, cursor: 'ns-resize' },
+    left: { left: 0, top: 8, bottom: 8, width: 6, cursor: 'ew-resize' },
+    right: { right: 0, top: 8, bottom: 8, width: 6, cursor: 'ew-resize' },
+    'top-left': { top: 0, left: 0, width: 12, height: 12, cursor: 'nwse-resize' },
+    'top-right': { top: 0, right: 0, width: 12, height: 12, cursor: 'nesw-resize' },
+    'bottom-left': { bottom: 0, left: 0, width: 12, height: 12, cursor: 'nesw-resize' },
+    'bottom-right': { bottom: 0, right: 0, width: 12, height: 12, cursor: 'nwse-resize' }
+  }
+
+  return (
+    <div
+      onMouseDown={handleMouseDown}
+      style={{
+        position: 'absolute',
+        zIndex: 9999,
+        WebkitAppRegion: 'no-drag',
+        ...positionStyles[position]
+      }}
+    />
+  )
+}
+
+/**
  * Prompter Component - Main teleprompter display window
  * Displays scrolling text with customizable appearance
  */
@@ -224,10 +277,19 @@ function Prompter() {
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
     >
+      {/* Resize handles for frameless transparent window */}
+      <ResizeHandle position="top" />
+      <ResizeHandle position="bottom" />
+      <ResizeHandle position="left" />
+      <ResizeHandle position="right" />
+      <ResizeHandle position="top-left" />
+      <ResizeHandle position="top-right" />
+      <ResizeHandle position="bottom-left" />
+      <ResizeHandle position="bottom-right" />
+
       {/* Text container - takes available space */}
       <div 
         className="flex-1 flex justify-center overflow-hidden relative"
-        style={{ WebkitAppRegion: 'drag' }}
       >
         <div 
           ref={textContainerRef}

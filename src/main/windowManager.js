@@ -152,6 +152,62 @@ export function createPrompterWindow() {
   return prompterWindow
 }
 
+// Resize state management
+let resizeState = null
+
+// Handle resize start from renderer (for frameless transparent windows in Electron 30+)
+ipcMain.on(IPC_CHANNELS.START_RESIZE, (event, direction) => {
+  const win = BrowserWindow.fromWebContents(event.sender)
+  if (!win || win.isDestroyed()) return
+  
+  const { screen } = require('electron')
+  const cursorPos = screen.getCursorScreenPoint()
+  const bounds = win.getBounds()
+  
+  resizeState = {
+    window: win,
+    direction,
+    startBounds: { ...bounds },
+    startCursor: { ...cursorPos }
+  }
+})
+
+// Handle resize move
+ipcMain.on('resize-move', (event) => {
+  if (!resizeState || !resizeState.window || resizeState.window.isDestroyed()) return
+  
+  const { screen } = require('electron')
+  const currentCursor = screen.getCursorScreenPoint()
+  const { direction, startBounds, startCursor, window: win } = resizeState
+  
+  const dx = currentCursor.x - startCursor.x
+  const dy = currentCursor.y - startCursor.y
+  
+  const newBounds = { ...startBounds }
+  
+  if (direction.includes('left')) {
+    newBounds.x = startBounds.x + dx
+    newBounds.width = Math.max(200, startBounds.width - dx)
+  }
+  if (direction.includes('right')) {
+    newBounds.width = Math.max(200, startBounds.width + dx)
+  }
+  if (direction.includes('top')) {
+    newBounds.y = startBounds.y + dy
+    newBounds.height = Math.max(50, startBounds.height - dy)
+  }
+  if (direction.includes('bottom')) {
+    newBounds.height = Math.max(50, startBounds.height + dy)
+  }
+  
+  win.setBounds(newBounds)
+})
+
+// Handle resize end
+ipcMain.on('resize-end', () => {
+  resizeState = null
+})
+
 export function getPrompterWindow() {
   return prompterWindow
 }

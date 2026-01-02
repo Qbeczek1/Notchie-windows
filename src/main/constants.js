@@ -36,7 +36,10 @@ export const IPC_CHANNELS = {
   UPDATE_PROMPTER_TEXT: 'update-prompter-text',
   
   // Settings updates
-  SETTINGS_UPDATED: 'settings-updated'
+  SETTINGS_UPDATED: 'settings-updated',
+  
+  // Window resize (for frameless transparent windows)
+  START_RESIZE: 'start-resize'
 }
 
 // Default application settings
